@@ -1,0 +1,6 @@
+@Sadec.Api_HostAddress = http://localhost:5090
+
+GET {{Sadec.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
