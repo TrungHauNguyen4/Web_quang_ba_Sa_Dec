@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router";
+import { useAuth } from "../context/AuthContext";
 import { 
   LayoutDashboard, 
   MapPin, 
@@ -22,6 +23,7 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ isMobile, isOpen, onClose }: AdminSidebarProps) {
   const location = useLocation();
+  const { logout } = useAuth();
 
   const menuItems = [
     { name: "Dashboard", icon: LayoutDashboard, path: "/admin" },
@@ -101,10 +103,13 @@ export function AdminSidebar({ isMobile, isOpen, onClose }: AdminSidebarProps) {
           </div>
 
           <div className="p-4 border-t border-stone-200 shrink-0">
-            <Link to="/" className="flex items-center gap-3 px-4 py-3 text-stone-600 hover:bg-stone-50 hover:text-red-600 rounded-xl transition-colors w-full whitespace-nowrap">
+            <button 
+              onClick={logout}
+              className="flex items-center gap-3 px-4 py-3 text-stone-600 hover:bg-stone-50 hover:text-red-600 rounded-xl transition-colors w-full whitespace-nowrap text-left"
+            >
               <LogOut size={20} className="text-stone-400" />
               Đăng xuất
-            </Link>
+            </button>
           </div>
           </motion.aside>
         </>

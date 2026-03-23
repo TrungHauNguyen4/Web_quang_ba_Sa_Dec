@@ -1,5 +1,7 @@
-import { lazy } from "react";
-import { createBrowserRouter } from "react-router";
+﻿import { lazy } from "react";
+import { createBrowserRouter, Outlet } from "react-router";
+import { AuthProvider } from "./context/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const Layout = lazy(async () => ({
   default: (await import("./components/Layout")).Layout,
@@ -7,6 +9,10 @@ const Layout = lazy(async () => ({
 
 const AdminLayout = lazy(async () => ({
   default: (await import("./components/AdminLayout")).AdminLayout,
+}));
+
+const Login = lazy(async () => ({
+  default: (await import("./pages/auth/Login")).Login,
 }));
 
 const Home = lazy(async () => ({
@@ -65,35 +71,55 @@ const AdminSettings = lazy(async () => ({
   default: (await import("./pages/admin/AdminSettings")).AdminSettings,
 }));
 
+const AppLayout = () => (
+  <AuthProvider>
+    <Outlet />
+  </AuthProvider>
+);
+
 export const router = createBrowserRouter([
   {
-    path: "/",
-    Component: Layout,
+    element: <AppLayout />,
     children: [
-      { index: true, Component: Home },
-      { path: "dia-danh", Component: Destinations },
-      { path: "am-thuc", Component: Cuisine },
-      { path: "ban-do", Component: MapPage },
-      { path: "tin-tuc", Component: News },
-      { path: "gioi-thieu", Component: About },
-      { path: "thu-vien", Component: Gallery },
-      { path: "lien-he", Component: Contact },
-      { path: "dich-vu", Component: Services },
-    ],
-  },
-  {
-    path: "/admin",
-    Component: AdminLayout,
-    children: [
-      { index: true, Component: Dashboard },
-      { path: "destinations", Component: AdminDestinations },
-      { path: "cuisine", Component: AdminCuisine },
-      { path: "news", Component: AdminNews },
-      { path: "services", Component: AdminServices },
-      { path: "media", Component: AdminMedia },
-      { path: "comments", Component: AdminComments },
-      { path: "users", Component: AdminUsers },
-      { path: "settings", Component: AdminSettings },
-    ],
-  },
+      {
+        path: "/",
+        Component: Layout,
+        children: [
+          { index: true, Component: Home },
+          { path: "dia-danh", Component: Destinations },
+          { path: "am-thuc", Component: Cuisine },
+          { path: "ban-do", Component: MapPage },
+          { path: "tin-tuc", Component: News },
+          { path: "gioi-thieu", Component: About },
+          { path: "thu-vien", Component: Gallery },
+          { path: "lien-he", Component: Contact },
+          { path: "dich-vu", Component: Services },
+        ],
+      },
+      {
+        path: "/login",
+        Component: Login,
+      },
+      {
+        path: "/admin",
+        element: <ProtectedRoute />,
+        children: [
+          {
+            Component: AdminLayout,
+            children: [
+              { index: true, Component: Dashboard },
+              { path: "destinations", Component: AdminDestinations },
+              { path: "cuisine", Component: AdminCuisine },
+              { path: "news", Component: AdminNews },
+              { path: "services", Component: AdminServices },
+              { path: "media", Component: AdminMedia },
+              { path: "comments", Component: AdminComments },
+              { path: "users", Component: AdminUsers },
+              { path: "settings", Component: AdminSettings },
+            ],
+          }
+        ],
+      },
+    ]
+  }
 ]);
