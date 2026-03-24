@@ -1,8 +1,22 @@
+using Microsoft.EntityFrameworkCore;
+using Sadec.Api.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// Swagger / API explorer
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Add controllers
+builder.Services.AddControllers();
+
+// Configure Entity Framework Core with SQL Server
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
@@ -10,9 +24,16 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+
+    // Swagger JSON & UI at /swagger
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
+
+// Map attribute-routed controllers (e.g., /api/news, /api/destinations)
+app.MapControllers();
 
 var summaries = new[]
 {

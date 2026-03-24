@@ -35,3 +35,11 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Local databases
+*.db
+Sadec.Api/SadecDb.db
+
+# .NET build outputs
+**/bin/
+**/obj/
