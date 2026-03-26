@@ -11,7 +11,7 @@ public sealed class MediaFile
     public string? LoaiNoiDung { get; set; }
 
     public Guid? NguoiTaiLenId { get; set; }
-    public NguoiDung? NguoiTaiLen { get; set; }
+    public ApplicationUser? NguoiTaiLen { get; set; }
 
     public DateTime TaoLuc { get; set; } = DateTime.UtcNow;
 }

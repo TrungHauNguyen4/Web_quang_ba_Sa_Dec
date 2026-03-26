@@ -18,5 +18,5 @@ public sealed class BinhLuan
     public DateTime TaoLuc { get; set; } = DateTime.UtcNow;
 
     public Guid? NguoiDungId { get; set; }
-    public NguoiDung? NguoiDung { get; set; }
+    public ApplicationUser? NguoiDung { get; set; }
 }

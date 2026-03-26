@@ -1,126 +1,141 @@
-# Backend Core Guide (Member 1 — Backend Lead)
+# Backend Core Guide (Member 1 + Member 2 Handoff)
 
-Tài liệu này giải thích những gì đã được tạo trong `Sadec.Api` và cách bạn chạy / migrate / test API.
+Tài liệu này là bản bàn giao thực tế cho các member còn lại để thay frontend hard-code sang API thật nhanh và ít rủi ro.
 
-## 1) Những thứ đã implement (deliverable)
+## 1) Phạm vi đã hoàn thành
 
-### 1.1 EF Core + SQL Server
-- Đã thêm EF Core SQL Server vào project.
-- `ApplicationDbContext` quản lý 2 bảng:
-  - `News`
-  - `Destinations`
+### 1.1 Backend Core (Member 1)
+- EF Core + SQL Server + migrations.
+- CRUD News và Destinations.
+- Public routes cho trang người dùng, admin routes cho dashboard.
+- Paging/filter cho list endpoint.
 
-### 1.2 Entities
-Nằm trong thư mục `Sadec.Api/Entities/`:
-- `News` (tin tức)
-- `Destination` (địa danh)
-- `ContentStatus` (Draft/Published/Archived)
+### 1.2 Auth & Users (Member 2)
+- ASP.NET Identity + JWT.
+- Seed role `Admin`, `Editor`, `Viewer`.
+- Seed user mẫu `admin@sadec.local`, `editor@sadec.local`, `viewer@sadec.local`.
+- Auth endpoints:
+  - `POST /api/auth/login`
+  - `POST /api/auth/refresh`
+  - `POST /api/auth/refresh-token` (alias tương thích)
 
-### 1.3 DTOs
-Nằm trong thư mục `Sadec.Api/Dtos/`:
-- `NewsDtos.cs`: `NewsDto`, `NewsCreateDto`, `NewsUpdateDto`
-- `DestinationDtos.cs`: `DestinationDto`, `DestinationCreateDto`, `DestinationUpdateDto`
+## 2) API contract đã chốt (dùng để frontend migrate)
 
-### 1.4 Controllers (CRUD)
-Nằm trong thư mục `Sadec.Api/Controllers/`:
-- `NewsController`:
-  - `GET    /api/news`
-  - `GET    /api/news/{id}`
-  - `POST   /api/news`
-  - `PUT    /api/news/{id}`
-  - `DELETE /api/news/{id}`
-- `DestinationsController`:
-  - `GET    /api/destinations`
-  - `GET    /api/destinations/{id}`
-  - `POST   /api/destinations`
-  - `PUT    /api/destinations/{id}`
-  - `DELETE /api/destinations/{id}`
+### 2.1 News
+- Public:
+  - `GET /api/news?page=1&pageSize=10&q=...`
+  - `GET /api/news/{id}`
+  - `GET /api/news/slug/{slug}`
+- Admin (`Bearer`, role `Admin|Editor`):
+  - `GET /api/admin/news?page=1&pageSize=20&q=...&status=0|1|2`
+  - `POST /api/admin/news`
+  - `PUT /api/admin/news/{id}`
+  - `DELETE /api/admin/news/{id}`
 
-### 1.5 Migrations
-- Đã tạo migration `InitialCreate` trong `Sadec.Api/Migrations/`.
-- Migration tạo bảng + unique index cho `Slug`.
+List response dùng chuẩn phân trang:
 
-### 1.6 Swagger
-- Khi chạy ở môi trường `Development`, có Swagger UI:
-  - `http://localhost:5090/swagger`
+```json
+{
+  "items": [],
+  "page": 1,
+  "pageSize": 10,
+  "total": 0,
+  "totalPages": 0
+}
+```
 
-## 2) Lưu ý quan trọng về .NET SDK (global.json)
+### 2.2 Destinations
+- Public:
+  - `GET /api/destinations?page=1&pageSize=10&q=...`
+  - `GET /api/destinations/{id}`
+  - `GET /api/destinations/slug/{slug}`
+- Admin (`Bearer`, role `Admin|Editor`):
+  - `GET /api/admin/destinations?page=1&pageSize=20&q=...&status=0|1|2`
+  - `POST /api/admin/destinations`
+  - `PUT /api/admin/destinations/{id}`
+  - `DELETE /api/admin/destinations/{id}`
 
-Máy của bạn có cả .NET SDK 9 và 10.
-- SDK 10 đang bị lỗi workload manifest nên build có thể fail.
-- Repo đã thêm `global.json` để pin SDK về **9.0.308**, giúp `dotnet build` / EF migrations chạy ổn định.
+List response dùng cùng chuẩn phân trang như News.
 
-## 3) Cấu hình Database
+### 2.3 Auth
+- `POST /api/auth/login`
 
-Connection string đang để trong:
-- `Sadec.Api/appsettings.json`
-- `Sadec.Api/appsettings.Development.json`
+Request:
 
-Mặc định đang dùng SQL Server Express instance thật trên máy Windows:
+```json
+{
+  "username": "admin@sadec.local",
+  "password": "Admin@123"
+}
+```
 
-`Server=.\\SQLEXPRESS;Database=SadecDb;Trusted_Connection=True;MultipleActiveResultSets=true;Encrypt=True;TrustServerCertificate=True`
+Response:
 
-Nếu bạn dùng SQL Server instance khác, chỉ cần thay `DefaultConnection` theo máy bạn.
+```json
+{
+  "token": "<jwt>",
+  "refreshToken": "<refresh-token>",
+  "user": {
+    "id": "...",
+    "displayName": "Admin",
+    "email": "admin@sadec.local",
+    "role": "Admin"
+  }
+}
+```
 
-### Override connection string không sửa file
-Bạn có thể override bằng biến môi trường (phù hợp CI/CD):
-- `ConnectionStrings__DefaultConnection=Server=...;Database=...;...`
+- `POST /api/auth/refresh` (khuyến nghị dùng route này)
 
-## 4) Chạy backend (dev)
+Request:
 
-Từ thư mục root của repo:
+```json
+{
+  "token": "<jwt-cu>",
+  "refreshToken": "<refresh-token-cu>"
+}
+```
 
-1) Restore + build:
-- `dotnet restore`
-- `dotnet build .\Sadec.Api\Sadec.Api.csproj`
+## 3) Validation rules quan trọng
 
-2) Chạy API:
-- `dotnet run --project .\Sadec.Api\Sadec.Api.csproj`
+- `title`: bắt buộc, độ dài 3-200.
+- `slug`: bắt buộc, độ dài 3-200, format `kebab-case` (`^[a-z0-9]+(?:-[a-z0-9]+)*$`).
+- `excerpt`: tối đa 500 ký tự.
+- `username`: tối thiểu 3 ký tự.
+- `password`: tối thiểu 6 ký tự.
 
-Mặc định profile đang set:
-- `http://localhost:5090`
-- `https://localhost:7175`
+## 4) CORS cho frontend team
 
-3) Mở Swagger:
-- `http://localhost:5090/swagger`
+Đang đọc từ `Cors:AllowedOrigins` trong appsettings.
 
-## 5) EF Core migrations (tạo/sửa DB schema)
+Mặc định development:
+- `http://localhost:5173`
+- `http://127.0.0.1:5173`
+- `http://localhost:4173`
 
-Repo đã cài `dotnet-ef` dạng **local tool** (manifest ở `.config/dotnet-tools.json`).
+Nếu frontend chạy domain khác, chỉ cần thêm vào `AllowedOrigins`.
 
-### 5.1 Tạo migration mới
-Ví dụ thêm field mới rồi tạo migration:
+## 5) Chạy backend local
 
-- `dotnet tool run dotnet-ef migrations add AddSomething \
-  --project .\Sadec.Api\Sadec.Api.csproj \
-  --startup-project .\Sadec.Api\Sadec.Api.csproj \
-  --output-dir Migrations`
+Từ root repo:
 
-### 5.2 Update database
-- `dotnet tool run dotnet-ef database update \
-  --project .\Sadec.Api\Sadec.Api.csproj \
-  --startup-project .\Sadec.Api\Sadec.Api.csproj`
+1. `dotnet restore`
+2. `dotnet build .\Sadec.Api\Sadec.Api.csproj`
+3. `dotnet run --project .\Sadec.Api\Sadec.Api.csproj`
+4. Mở Swagger tại `http://localhost:5090/swagger`
 
-### 5.3 Xoá migration vừa tạo (nếu chưa apply)
-- `dotnet tool run dotnet-ef migrations remove \
-  --project .\Sadec.Api\Sadec.Api.csproj \
-  --startup-project .\Sadec.Api\Sadec.Api.csproj`
+## 6) Checklist bàn giao cho Member 3-5
 
-## 6) Test nhanh bằng file .http
+- Contract Auth/News/Destinations đã ổn định.
+- Frontend phải đọc dữ liệu phân trang từ `items` thay vì mảng trực tiếp.
+- Admin call phải gửi `Authorization: Bearer <token>`.
+- Route refresh thống nhất dùng `/api/auth/refresh`.
+- Nếu cần tương thích code cũ, `/api/auth/refresh-token` vẫn hoạt động.
 
-Mở file `Sadec.Api/Sadec.Api.http` trong VS Code và bấm `Send Request`.
-- Có sẵn mẫu request: list/create News và Destinations.
+## 7) Ghi chú cho frontend migration
 
-## 7) Quy ước dữ liệu / lỗi thường gặp
-
-- `Slug` là unique (không được trùng). Nếu trùng API trả `409 Conflict`.
-- Enum `ContentStatus` hiện đang gửi/nhận dạng số (mặc định của .NET):
-  - `0` = Draft
-  - `1` = Published
-  - `2` = Archived
-
-## 8) Next step gợi ý (khi sang Member 2 / Auth)
-
-Khi có JWT/role:
-- Bạn có thể khóa `POST/PUT/DELETE` bằng `[Authorize(Roles = "Admin,Editor")]`.
-- Giữ `GET` public để frontend hiển thị.
+- Ưu tiên migrate theo thứ tự:
+  1. Login
+  2. Admin News
+  3. Admin Destinations
+  4. Public News và Public Destinations
+- Các màn hình Media/Comments/Users/Services sẽ nối API sau khi Member 3-4 hoàn thành endpoint tương ứng.

@@ -1,14 +1,15 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Sadec.Api.Entities;
 
 namespace Sadec.Api.Data;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>(options)
 {
     public DbSet<TinTuc> TinTucs => Set<TinTuc>();
     public DbSet<DiaDiem> DiaDiems => Set<DiaDiem>();
 
-    public DbSet<NguoiDung> NguoiDungs => Set<NguoiDung>();
     public DbSet<DanhMuc> DanhMucs => Set<DanhMuc>();
     public DbSet<TinTucDanhMuc> TinTucDanhMucs => Set<TinTucDanhMuc>();
     public DbSet<DiaDiemDanhMuc> DiaDiemDanhMucs => Set<DiaDiemDanhMuc>();
@@ -16,6 +17,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<MonAn> MonAns => Set<MonAn>();
     public DbSet<MediaFile> MediaFiles => Set<MediaFile>();
     public DbSet<BinhLuan> BinhLuans => Set<BinhLuan>();
+
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     public DbSet<HoSoDichVu> HoSoDichVus => Set<HoSoDichVu>();
     public DbSet<ThuTucDichVu> ThuTucDichVus => Set<ThuTucDichVu>();
@@ -55,16 +58,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
             entity.Property(x => x.AnhDaiDienUrl).HasMaxLength(1000);
             entity.Property(x => x.LuotXem).HasDefaultValue(0);
-        });
-
-        modelBuilder.Entity<NguoiDung>(entity =>
-        {
-            entity.HasKey(x => x.MaSo);
-            entity.Property(x => x.TenHienThi).HasMaxLength(120).IsRequired();
-            entity.Property(x => x.Email).HasMaxLength(200).IsRequired();
-            entity.HasIndex(x => x.Email).IsUnique();
-            entity.Property(x => x.MatKhauHash).HasMaxLength(500);
-            entity.Property(x => x.VaiTro).HasMaxLength(20).IsRequired();
         });
 
         modelBuilder.Entity<DanhMuc>(entity =>
@@ -174,6 +167,17 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(x => x.Khoa).HasMaxLength(120).IsRequired();
             entity.HasIndex(x => x.Khoa).IsUnique();
             entity.Property(x => x.GiaTri).HasMaxLength(4000).IsRequired();
+        });
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Token).HasMaxLength(200).IsRequired();
+            entity.HasIndex(x => x.Token).IsUnique();
+            entity.HasOne(x => x.User)
+                .WithMany()
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

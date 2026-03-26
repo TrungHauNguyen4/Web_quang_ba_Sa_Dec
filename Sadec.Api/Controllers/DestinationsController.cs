@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sadec.Api.Data;
@@ -10,11 +11,32 @@ namespace Sadec.Api.Controllers;
 [Route("api/destinations")]
 public class DestinationsController(ApplicationDbContext dbContext) : ControllerBase
 {
+    // Public GET: chỉ trả địa điểm đã xuất bản
     [HttpGet]
-    public async Task<ActionResult<List<DestinationDto>>> GetAll(CancellationToken cancellationToken)
+    public async Task<ActionResult<PagedResultDto<DestinationDto>>> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? q = null,
+        CancellationToken cancellationToken = default)
     {
-        var items = await dbContext.DiaDiems
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 50);
+
+        var query = dbContext.DiaDiems
+            .Where(x => x.TrangThai == ContentStatus.Published);
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var keyword = q.Trim();
+            query = query.Where(x => x.TieuDe.Contains(keyword) || (x.MoTaNgan != null && x.MoTaNgan.Contains(keyword)));
+        }
+
+        var total = await query.CountAsync(cancellationToken);
+
+        var items = await query
             .OrderByDescending(x => x.TaoLuc)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(x => new DestinationDto(
                 x.MaSo,
                 x.TieuDe,
@@ -29,13 +51,18 @@ public class DestinationsController(ApplicationDbContext dbContext) : Controller
             ))
             .ToListAsync(cancellationToken);
 
-        return Ok(items);
+        var totalPages = total == 0 ? 0 : (int)Math.Ceiling(total / (double)pageSize);
+        return Ok(new PagedResultDto<DestinationDto>(items, page, pageSize, total, totalPages));
     }
 
+    // Public GET chi tiết: chỉ xem được địa điểm đã xuất bản
     [HttpGet("{maSo:guid}")]
     public async Task<ActionResult<DestinationDto>> GetById(Guid maSo, CancellationToken cancellationToken)
     {
-        var entity = await dbContext.DiaDiems.FirstOrDefaultAsync(x => x.MaSo == maSo, cancellationToken);
+        var entity = await dbContext.DiaDiems
+            .Where(x => x.TrangThai == ContentStatus.Published)
+            .FirstOrDefaultAsync(x => x.MaSo == maSo, cancellationToken);
+
         if (entity is null) return NotFound();
 
         return Ok(new DestinationDto(
@@ -52,7 +79,86 @@ public class DestinationsController(ApplicationDbContext dbContext) : Controller
         ));
     }
 
+    // Public GET chi tiết theo slug
+    [HttpGet("slug/{slug}")]
+    public async Task<ActionResult<DestinationDto>> GetBySlug(string slug, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(slug)) return BadRequest();
+
+        var normalized = slug.Trim();
+
+        var entity = await dbContext.DiaDiems
+            .Where(x => x.TrangThai == ContentStatus.Published)
+            .FirstOrDefaultAsync(x => x.DuongDan == normalized, cancellationToken);
+
+        if (entity is null) return NotFound();
+
+        return Ok(new DestinationDto(
+            entity.MaSo,
+            entity.TieuDe,
+            entity.DuongDan,
+            entity.MoTaNgan,
+            entity.NoiDung,
+            entity.ViDo,
+            entity.KinhDo,
+            entity.TrangThai,
+            entity.TaoLuc,
+            entity.CapNhatLuc
+        ));
+    }
+
+    // Admin GET: xem tất cả trạng thái địa điểm
+    [HttpGet("/api/admin/destinations")]
+    [Authorize(Roles = "Admin,Editor")]
+    public async Task<ActionResult<PagedResultDto<DestinationDto>>> GetAllForAdmin(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? q = null,
+        [FromQuery] ContentStatus? status = null,
+        CancellationToken cancellationToken = default)
+    {
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var query = dbContext.DiaDiems.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var keyword = q.Trim();
+            query = query.Where(x => x.TieuDe.Contains(keyword) || (x.MoTaNgan != null && x.MoTaNgan.Contains(keyword)));
+        }
+
+        if (status.HasValue)
+        {
+            query = query.Where(x => x.TrangThai == status.Value);
+        }
+
+        var total = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .OrderByDescending(x => x.TaoLuc)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new DestinationDto(
+                x.MaSo,
+                x.TieuDe,
+                x.DuongDan,
+                x.MoTaNgan,
+                x.NoiDung,
+                x.ViDo,
+                x.KinhDo,
+                x.TrangThai,
+                x.TaoLuc,
+                x.CapNhatLuc
+            ))
+            .ToListAsync(cancellationToken);
+
+        var totalPages = total == 0 ? 0 : (int)Math.Ceiling(total / (double)pageSize);
+        return Ok(new PagedResultDto<DestinationDto>(items, page, pageSize, total, totalPages));
+    }
+
     [HttpPost("/api/admin/destinations")]
+    [Authorize(Roles = "Admin,Editor")]
     public async Task<ActionResult<DestinationDto>> Create([FromBody] DestinationCreateDto request, CancellationToken cancellationToken)
     {
         var slug = request.Slug.Trim();
@@ -89,6 +195,7 @@ public class DestinationsController(ApplicationDbContext dbContext) : Controller
     }
 
     [HttpPut("/api/admin/destinations/{maSo:guid}")]
+    [Authorize(Roles = "Admin,Editor")]
     public async Task<IActionResult> Update(Guid maSo, [FromBody] DestinationUpdateDto request, CancellationToken cancellationToken)
     {
         var entity = await dbContext.DiaDiems.FirstOrDefaultAsync(x => x.MaSo == maSo, cancellationToken);
@@ -114,6 +221,7 @@ public class DestinationsController(ApplicationDbContext dbContext) : Controller
     }
 
     [HttpDelete("/api/admin/destinations/{maSo:guid}")]
+    [Authorize(Roles = "Admin,Editor")]
     public async Task<IActionResult> Delete(Guid maSo, CancellationToken cancellationToken)
     {
         var entity = await dbContext.DiaDiems.FirstOrDefaultAsync(x => x.MaSo == maSo, cancellationToken);

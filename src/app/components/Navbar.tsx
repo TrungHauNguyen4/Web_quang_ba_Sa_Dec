@@ -14,16 +14,16 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-emerald-100/80 bg-white/88 shadow-[0_10px_30px_-24px_rgba(5,150,105,0.65)] backdrop-blur-xl">
       <div className="container mx-auto flex h-20 items-center justify-between gap-4 px-4">
-        <Link to="/" className="flex items-center gap-3 text-2xl font-bold text-green-700">
-          <span className="text-orange-500">
+        <Link to="/" className="flex items-center gap-3 text-2xl font-bold text-green-800">
+          <span className="text-emerald-700">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8">
-              <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 8.25 3c1.804 0 3.56.71 4.75 1.95A6.73 6.73 0 0117.75 3c3.536 0 6 2.322 6 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+              <path d="M12 2.25c-1.245 0-2.25 1.005-2.25 2.25v2.25H7.5c-1.245 0-2.25 1.005-2.25 2.25v6.75c0 1.245 1.005 2.25 2.25 2.25h9c1.245 0 2.25-1.005 2.25-2.25V9c0-1.245-1.005-2.25-2.25-2.25h-2.25V4.5c0-1.245-1.005-2.25-2.25-2.25z" />
             </svg>
           </span>
           <span className="flex flex-col leading-none">
-            <span>Sa Đéc</span>
-            <span className="text-xs font-medium uppercase tracking-[0.24em] text-emerald-500/80">
-              Tourism Portal
+            <span>Cổng thông tin</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600/80">
+              Phường/Xã Sa Đéc
             </span>
           </span>
         </Link>
@@ -49,16 +49,16 @@ export function Navbar() {
 
         <div className="hidden lg:flex items-center gap-3">
           <Link
-            to="/ban-do"
-            className="rounded-full border border-emerald-200 px-4 py-2 text-sm font-semibold text-emerald-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50"
+            to="/dich-vu"
+            className="rounded-full border border-emerald-200 px-4 py-2 text-sm font-semibold text-emerald-800 transition-colors hover:border-emerald-300 hover:bg-emerald-50"
           >
-            Lên lịch trình
+            Dịch vụ trực tuyến
           </Link>
           <Link
             to="/lien-he"
-            className="inline-flex items-center gap-2 rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition-all hover:bg-orange-600"
+            className="inline-flex items-center gap-2 rounded-full bg-green-700 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-green-600/20 transition-all hover:bg-green-800"
           >
-            Tư vấn nhanh <ArrowRight size={16} />
+            Phản ánh nhanh <ArrowRight size={16} />
           </Link>
         </div>
 
@@ -80,9 +80,9 @@ export function Navbar() {
             id="mobile-navigation"
             className="absolute inset-x-4 top-24 rounded-[2rem] border border-stone-200 bg-white p-5 shadow-2xl"
           >
-            <div className="mb-4 rounded-[1.5rem] bg-gradient-to-br from-emerald-900 via-emerald-700 to-orange-500 px-5 py-4 text-white">
-              <p className="text-xs uppercase tracking-[0.28em] text-white/70">Khám phá nhanh</p>
-              <p className="mt-2 text-lg font-semibold">Chọn điểm đến, món ngon hoặc lịch trình phù hợp.</p>
+            <div className="mb-4 rounded-[1.5rem] bg-gradient-to-br from-emerald-900 via-emerald-700 to-green-500 px-5 py-4 text-white">
+              <p className="text-xs uppercase tracking-[0.28em] text-white/70">Truy cập nhanh</p>
+              <p className="mt-2 text-lg font-semibold">Nộp hồ sơ, tra cứu và xem thông báo mới nhất.</p>
             </div>
 
             <div className="flex flex-col gap-2">
@@ -109,14 +109,14 @@ export function Navbar() {
 
             <div className="mt-4 grid grid-cols-2 gap-3">
               <Link
-                to="/ban-do"
-                className="rounded-full border border-emerald-200 px-4 py-3 text-center text-sm font-semibold text-emerald-700"
+                to="/dich-vu"
+                className="rounded-full border border-emerald-200 px-4 py-3 text-center text-sm font-semibold text-emerald-800"
               >
-                Xem bản đồ
+                Nộp hồ sơ
               </Link>
               <Link
                 to="/lien-he"
-                className="rounded-full bg-orange-500 px-4 py-3 text-center text-sm font-semibold text-white"
+                className="rounded-full bg-green-700 px-4 py-3 text-center text-sm font-semibold text-white"
               >
                 Liên hệ ngay
               </Link>

@@ -15,7 +15,7 @@ public class TinTuc
     public int LuotXem { get; set; }
 
     public Guid? TacGiaId { get; set; }
-    public NguoiDung? TacGia { get; set; }
+    public ApplicationUser? TacGia { get; set; }
 
     public ICollection<TinTucDanhMuc> TinTucDanhMucs { get; set; } = new List<TinTucDanhMuc>();
 
