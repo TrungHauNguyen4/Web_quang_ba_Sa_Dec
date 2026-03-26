@@ -30,16 +30,33 @@ yarn-error.log*
 .vscode/*
 !.vscode/extensions.json
 .idea/
+.vs/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.user
+*.userosscache
+
+# Test outputs
+TestResults/
+*.trx
 
 # Local databases
 *.db
 Sadec.Api/SadecDb.db
 
+# Local runtime uploads
+Sadec.Api/wwwroot/uploads/
+
+# Local .NET development overrides
+Sadec.Api/appsettings.Development.json
+
 # .NET build outputs
 **/bin/
 **/obj/
+
+# Temp/system files
+Thumbs.db
+*.tmp
