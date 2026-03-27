@@ -30,6 +30,9 @@ const MapPage = lazy(async () => ({
 const News = lazy(async () => ({
   default: (await import("./pages/News")).News,
 }));
+const NewsDetail = lazy(async () => ({
+  default: (await import("./pages/NewsDetail")).NewsDetail,
+}));
 const About = lazy(async () => ({
   default: (await import("./pages/About")).About,
 }));
@@ -90,6 +93,7 @@ export const router = createBrowserRouter([
           { path: "am-thuc", Component: Cuisine },
           { path: "ban-do", Component: MapPage },
           { path: "tin-tuc", Component: News },
+          { path: "tin-tuc/:slug", Component: NewsDetail },
           { path: "gioi-thieu", Component: About },
           { path: "thu-vien", Component: Gallery },
           { path: "lien-he", Component: Contact },

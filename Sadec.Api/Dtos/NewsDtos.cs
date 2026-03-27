@@ -8,6 +8,7 @@ public sealed record NewsDto(
     string Title,
     string Slug,
     string? Excerpt,
+    string? ImageUrl,
     string? Content,
     ContentStatus Status,
     DateTime? PublishedAt,
@@ -26,6 +27,9 @@ public sealed class NewsCreateDto
     [StringLength(500)]
     public string? Excerpt { get; set; }
 
+    [StringLength(1000)]
+    public string? ImageUrl { get; set; }
+
     public string? Content { get; set; }
 
     public ContentStatus Status { get; set; }
@@ -43,6 +47,9 @@ public sealed class NewsUpdateDto
 
     [StringLength(500)]
     public string? Excerpt { get; set; }
+
+    [StringLength(1000)]
+    public string? ImageUrl { get; set; }
 
     public string? Content { get; set; }
 

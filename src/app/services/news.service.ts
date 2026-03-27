@@ -8,6 +8,11 @@ export const newsService = {
     return response.data;
   },
 
+  getBySlug: async (slug: string) => {
+    const response = await axios.get(`${API_BaseURL}/news/slug/${slug}`);
+    return response.data;
+  },
+
   getById: async (id: string) => {
     const response = await axios.get(`${API_BaseURL}/news/${id}`);
     return response.data;
