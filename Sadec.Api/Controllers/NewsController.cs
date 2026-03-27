@@ -42,6 +42,7 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
                 x.TieuDe,
                 x.DuongDan,
                 x.MoTaNgan,
+                x.AnhDaiDienUrl,
                 x.NoiDung,
                 x.TrangThai,
                 x.PhatHanhLuc,
@@ -69,6 +70,7 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
             entity.TieuDe,
             entity.DuongDan,
             entity.MoTaNgan,
+            entity.AnhDaiDienUrl,
             entity.NoiDung,
             entity.TrangThai,
             entity.PhatHanhLuc,
@@ -96,6 +98,7 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
             entity.TieuDe,
             entity.DuongDan,
             entity.MoTaNgan,
+            entity.AnhDaiDienUrl,
             entity.NoiDung,
             entity.TrangThai,
             entity.PhatHanhLuc,
@@ -141,6 +144,7 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
                 x.TieuDe,
                 x.DuongDan,
                 x.MoTaNgan,
+                x.AnhDaiDienUrl,
                 x.NoiDung,
                 x.TrangThai,
                 x.PhatHanhLuc,
@@ -167,6 +171,7 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
             TieuDe = request.Title.Trim(),
             DuongDan = slug,
             MoTaNgan = request.Excerpt,
+            AnhDaiDienUrl = request.ImageUrl,
             NoiDung = request.Content,
             TrangThai = request.Status,
             PhatHanhLuc = request.PublishedAt
@@ -180,6 +185,7 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
             entity.TieuDe,
             entity.DuongDan,
             entity.MoTaNgan,
+            entity.AnhDaiDienUrl,
             entity.NoiDung,
             entity.TrangThai,
             entity.PhatHanhLuc,
@@ -203,6 +209,7 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
         entity.TieuDe = request.Title.Trim();
         entity.DuongDan = slug;
         entity.MoTaNgan = request.Excerpt;
+        entity.AnhDaiDienUrl = request.ImageUrl;
         entity.NoiDung = request.Content;
         entity.TrangThai = request.Status;
         entity.PhatHanhLuc = request.PublishedAt;
