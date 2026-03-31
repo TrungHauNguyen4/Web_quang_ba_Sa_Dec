@@ -138,4 +138,42 @@ public class MediaController(ApplicationDbContext dbContext, IWebHostEnvironment
         var totalPages = total == 0 ? 0 : (int)Math.Ceiling(total / (double)pageSize);
         return Ok(new PagedResultDto<MediaFileDto>(items, page, pageSize, total, totalPages));
     }
+
+    [AllowAnonymous]
+    [HttpGet("/api/media")]
+    public async Task<ActionResult<PagedResultDto<MediaFileDto>>> GetPublic(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 30,
+        [FromQuery] string? q = null,
+        CancellationToken cancellationToken = default)
+    {
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var query = dbContext.MediaFiles.AsQueryable();
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var keyword = q.Trim();
+            query = query.Where(x => x.TenTep.Contains(keyword));
+        }
+
+        var total = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .OrderByDescending(x => x.TaoLuc)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new MediaFileDto(
+                x.MaSo,
+                x.Url,
+                x.TenTep,
+                x.KichThuocBytes ?? 0,
+                x.LoaiNoiDung ?? string.Empty,
+                x.TaoLuc
+            ))
+            .ToListAsync(cancellationToken);
+
+        var totalPages = total == 0 ? 0 : (int)Math.Ceiling(total / (double)pageSize);
+        return Ok(new PagedResultDto<MediaFileDto>(items, page, pageSize, total, totalPages));
+    }
 }

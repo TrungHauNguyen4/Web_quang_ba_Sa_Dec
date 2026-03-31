@@ -1,23 +1,101 @@
-import { useState } from "react";
-import { Upload, Search, Filter, Trash2, Eye, Copy, Check, MoreVertical } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Upload, Search, Trash2, Eye, Copy, Check } from "lucide-react";
+import { motion } from "motion/react";
+import { isAxiosError } from "axios";
+import { MediaItemDto, mediaService } from "../../services/media.service";
 
 export function AdminMedia() {
-  const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [mediaFiles, setMediaFiles] = useState<MediaItemDto[]>([]);
+  const [query, setQuery] = useState("");
+  const [fileType, setFileType] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const uploadInputRef = useRef<HTMLInputElement | null>(null);
 
-  const mediaFiles = [
-    { id: 1, url: "https://images.unsplash.com/photo-1708448341128-60d0b6cdbf12?auto=format&fit=crop&q=80&w=600", name: "lang-hoa-sa-dec-2026.jpg", size: "2.4 MB", date: "20/02/2026" },
-    { id: 2, url: "https://images.unsplash.com/photo-1543411789-1a67a2ac05c6?auto=format&fit=crop&q=80&w=600", name: "song-tien-hoang-hon.webp", size: "1.8 MB", date: "19/02/2026" },
-    { id: 3, url: "https://images.unsplash.com/photo-1707807562742-bf69e7feaf4e?auto=format&fit=crop&q=80&w=600", name: "chua-kien-an-cung.jpg", size: "3.1 MB", date: "18/02/2026" },
-    { id: 4, url: "https://images.unsplash.com/photo-1724935451945-1f1967520d32?auto=format&fit=crop&q=80&w=600", name: "nha-co-huynh-thuy-le.png", size: "4.5 MB", date: "15/02/2026" },
-    { id: 5, url: "https://images.unsplash.com/photo-1558722199-56eabc94fb69?auto=format&fit=crop&q=80&w=600", name: "hu-tieu-sa-dec.jpg", size: "1.2 MB", date: "10/02/2026" },
-    { id: 6, url: "https://images.unsplash.com/photo-1560091807-fd148c31a728?auto=format&fit=crop&q=80&w=600", name: "nem-lai-vung.jpg", size: "2.0 MB", date: "05/02/2026" },
-  ];
+  const loadMedia = async () => {
+    setLoading(true);
+    setError(null);
 
-  const handleCopy = (url: string, id: number) => {
+    try {
+      const response = await mediaService.getAll({ page: 1, pageSize: 100, q: query || undefined });
+      setMediaFiles(Array.isArray(response?.items) ? response.items : []);
+    } catch (err: unknown) {
+      if (isAxiosError(err)) {
+        if (err.response?.status === 401) {
+          setError("Ban can dang nhap bang tai khoan Admin/Editor de xem media.");
+        } else {
+          setError(`Khong tai duoc danh sach media (HTTP ${err.response?.status ?? "?"}).`);
+        }
+      } else {
+        setError("Khong tai duoc danh sach media.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadMedia();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const filteredMediaFiles = useMemo(() => {
+    if (fileType === "all") {
+      return mediaFiles;
+    }
+
+    return mediaFiles.filter((file) => {
+      if (fileType === "image") return file.contentType.startsWith("image/");
+      if (fileType === "video") return file.contentType.startsWith("video/");
+      if (fileType === "document") return file.contentType === "application/pdf";
+      return true;
+    });
+  }, [fileType, mediaFiles]);
+
+  const handleCopy = (url: string, id: string) => {
     navigator.clipboard.writeText(url);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleUploadClick = () => {
+    uploadInputRef.current?.click();
+  };
+
+  const handleUploadChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = event.target.files?.[0];
+    if (!selected) return;
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      await mediaService.upload(selected);
+      await loadMedia();
+    } catch (err: unknown) {
+      if (isAxiosError(err)) {
+        setError(`Tai tep that bai (HTTP ${err.response?.status ?? "?"}).`);
+      } else {
+        setError("Tai tep that bai.");
+      }
+    } finally {
+      setUploading(false);
+      event.target.value = "";
+    }
+  };
+
+  const formatDate = (dateIso: string) => {
+    const date = new Date(dateIso);
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toLocaleDateString("vi-VN");
+  };
+
+  const formatSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   return (
@@ -27,13 +105,27 @@ export function AdminMedia() {
           <h1 className="text-2xl font-bold text-stone-800">Thư Viện Media</h1>
           <p className="text-sm text-stone-500">Quản lý hình ảnh, video dùng trên toàn bộ website</p>
         </div>
-        <button className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-colors shadow-sm self-start sm:self-auto">
-          <Upload size={18} /> Tải tệp lên
+        <button
+          onClick={handleUploadClick}
+          disabled={uploading}
+          className="bg-teal-600 hover:bg-teal-700 disabled:opacity-60 disabled:cursor-not-allowed text-white px-4 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-colors shadow-sm self-start sm:self-auto"
+        >
+          <Upload size={18} /> {uploading ? "Dang tai len..." : "Tải tệp lên"}
         </button>
       </div>
 
+      <input
+        ref={uploadInputRef}
+        type="file"
+        className="hidden"
+        onChange={handleUploadChange}
+      />
+
       {/* Upload Zone */}
-      <div className="border-2 border-dashed border-stone-200 rounded-2xl p-10 text-center bg-white hover:bg-stone-50 transition-colors cursor-pointer flex flex-col items-center justify-center gap-3">
+      <div
+        onClick={handleUploadClick}
+        className="border-2 border-dashed border-stone-200 rounded-2xl p-10 text-center bg-white hover:bg-stone-50 transition-colors cursor-pointer flex flex-col items-center justify-center gap-3"
+      >
         <div className="w-16 h-16 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center shadow-sm">
           <Upload size={28} />
         </div>
@@ -50,15 +142,26 @@ export function AdminMedia() {
           <input 
             type="text" 
             placeholder="Tìm kiếm tệp..." 
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                void loadMedia();
+              }
+            }}
             className="w-full pl-10 pr-4 py-2 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all text-sm"
           />
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
-          <select className="flex-1 sm:flex-none border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-600 bg-white focus:outline-none focus:border-teal-500">
-            <option>Tất cả định dạng</option>
-            <option>Hình ảnh</option>
-            <option>Video</option>
-            <option>Tài liệu</option>
+          <select
+            value={fileType}
+            onChange={(e) => setFileType(e.target.value)}
+            className="flex-1 sm:flex-none border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-600 bg-white focus:outline-none focus:border-teal-500"
+          >
+            <option value="all">Tất cả định dạng</option>
+            <option value="image">Hình ảnh</option>
+            <option value="video">Video</option>
+            <option value="document">Tài liệu</option>
           </select>
           <select className="flex-1 sm:flex-none border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-600 bg-white focus:outline-none focus:border-teal-500">
             <option>Mới nhất</option>
@@ -68,9 +171,22 @@ export function AdminMedia() {
         </div>
       </div>
 
+      {error ? (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 text-sm">
+          {error}
+        </div>
+      ) : null}
+
+      {loading ? (
+        <div className="bg-white rounded-xl border border-stone-100 p-6 text-stone-500 text-sm">
+          Dang tai danh sach media...
+        </div>
+      ) : null}
+
       {/* Media Grid */}
+      {!loading ? (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        {mediaFiles.map((file, i) => (
+        {filteredMediaFiles.map((file, i) => (
           <motion.div 
             key={file.id}
             initial={{ opacity: 0, scale: 0.95 }}
@@ -79,7 +195,17 @@ export function AdminMedia() {
             className="group relative bg-white rounded-2xl overflow-hidden shadow-sm border border-stone-100 hover:shadow-md transition-all"
           >
             <div className="aspect-square relative overflow-hidden bg-stone-100">
-              <img src={file.url} alt={file.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              {file.contentType.startsWith("image/") ? (
+                <img src={file.url} alt={file.fileName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              ) : null}
+              {file.contentType.startsWith("video/") ? (
+                <video src={file.url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
+              ) : null}
+              {file.contentType === "application/pdf" ? (
+                <div className="w-full h-full flex items-center justify-center text-stone-600 font-semibold bg-stone-200">
+                  PDF
+                </div>
+              ) : null}
               
               {/* Overlay actions */}
               <div className="absolute inset-0 bg-stone-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
@@ -101,19 +227,26 @@ export function AdminMedia() {
               </div>
             </div>
             <div className="p-3">
-              <p className="text-sm font-medium text-stone-800 truncate" title={file.name}>{file.name}</p>
+              <p className="text-sm font-medium text-stone-800 truncate" title={file.fileName}>{file.fileName}</p>
               <div className="flex justify-between items-center mt-1 text-xs text-stone-500">
-                <span>{file.size}</span>
-                <span>{file.date}</span>
+                <span>{formatSize(file.sizeBytes)}</span>
+                <span>{formatDate(file.createdAt)}</span>
               </div>
             </div>
           </motion.div>
         ))}
       </div>
+      ) : null}
+
+      {!loading && filteredMediaFiles.length === 0 ? (
+        <div className="bg-white rounded-xl border border-stone-100 p-6 text-stone-500 text-sm">
+          Chua co media nao trong he thong.
+        </div>
+      ) : null}
       
       <div className="flex justify-center mt-8">
-        <button className="px-6 py-2.5 bg-white border border-stone-200 text-stone-600 font-medium rounded-xl hover:bg-stone-50 transition-colors shadow-sm">
-          Tải thêm
+        <button onClick={() => void loadMedia()} className="px-6 py-2.5 bg-white border border-stone-200 text-stone-600 font-medium rounded-xl hover:bg-stone-50 transition-colors shadow-sm">
+          Tải lại
         </button>
       </div>
     </div>

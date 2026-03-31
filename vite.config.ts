@@ -1,5 +1,4 @@
 import { defineConfig } from 'vite'
-import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 
@@ -13,26 +12,34 @@ export default defineConfig({
   resolve: {
     alias: {
       // Alias @ to the src directory
-      '@': path.resolve(__dirname, './src'),
+      '@': '/src',
+    },
+  },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5090',
+        changeOrigin: true,
+      },
     },
   },
   build: {
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (!id.includes('node_modules')) {
+          if (id.indexOf('node_modules') === -1) {
             return;
           }
 
-          if (id.includes('react-router')) {
+          if (id.indexOf('react-router') !== -1) {
             return 'router';
           }
 
-          if (id.includes('recharts')) {
+          if (id.indexOf('recharts') !== -1) {
             return 'charts';
           }
 
-          if (id.includes('motion')) {
+          if (id.indexOf('motion') !== -1) {
             return 'motion';
           }
 

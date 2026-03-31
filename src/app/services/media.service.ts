@@ -1,6 +1,23 @@
 import axios from 'axios';
 
-const API_BaseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BaseURL = '/api';
+
+export interface MediaItemDto {
+  id: string;
+  url: string;
+  fileName: string;
+  sizeBytes: number;
+  contentType: string;
+  createdAt: string;
+}
+
+export interface PagedMediaResponse {
+  items: MediaItemDto[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
 
 export const mediaService = {
   upload: async (file: File) => {
@@ -13,14 +30,19 @@ export const mediaService = {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       },
     });
-    return response.data.url; // Assuming backend returns { url: "..." }
+    return response.data;
   },
 
-  getAll: async (params?: any) => {
+  getAll: async (params?: { page?: number; pageSize?: number; q?: string }) => {
     const response = await axios.get(`${API_BaseURL}/admin/media`, {
         params,
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     });
-    return response.data;
+    return response.data as PagedMediaResponse;
+  },
+
+  getPublic: async (params?: { page?: number; pageSize?: number; q?: string }) => {
+    const response = await axios.get(`${API_BaseURL}/media`, { params });
+    return response.data as PagedMediaResponse;
   }
 };
