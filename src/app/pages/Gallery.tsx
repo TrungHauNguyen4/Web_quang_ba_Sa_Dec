@@ -23,9 +23,9 @@ export function Gallery() {
       } catch (err: unknown) {
         if (!active) return;
         if (isAxiosError(err)) {
-          setError(`Khong tai duoc thu vien media (HTTP ${err.response?.status ?? "?"}).`);
+          setError(`Không tải được thư viện media (HTTP ${err.response?.status ?? "?"}).`);
         } else {
-          setError("Khong tai duoc thu vien media.");
+          setError("Không tải được thư viện media.");
         }
       } finally {
         if (active) {
@@ -83,13 +83,13 @@ export function Gallery() {
         </div>
 
         {loading ? (
-          <div className="bg-white border border-stone-100 rounded-2xl p-6 text-stone-500 text-sm">
-            Dang tai thu vien...
+          <div className="rounded-2xl border border-stone-200 bg-white p-6 text-sm text-stone-500">
+            Đang tải thư viện...
           </div>
         ) : null}
 
         {!loading && error ? (
-          <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-6 text-sm">
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">
             {error}
           </div>
         ) : null}
@@ -105,8 +105,8 @@ export function Gallery() {
                 className="break-inside-avoid relative group rounded-2xl overflow-hidden cursor-pointer bg-stone-200"
               >
                 <img 
-                  src={item.url} 
-                  alt={item.fileName} 
+                  src={item.url}
+                  alt={item.fileName}
                   className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700" 
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
@@ -127,13 +127,18 @@ export function Gallery() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="group"
+                className="group cursor-pointer"
               >
                 <div className="relative rounded-2xl overflow-hidden shadow-lg aspect-video mb-4 bg-stone-900">
                   <video className="w-full h-full object-cover" controls preload="metadata" playsInline>
                     <source src={video.url} type={video.contentType} />
-                    Trinh duyet khong ho tro phat video.
+                    Trình duyệt không hỗ trợ phát video.
                   </video>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-16 h-16 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-teal-600 shadow-xl group-hover:scale-110 transition-transform">
+                      <Play size={32} className="ml-1" />
+                    </div>
+                  </div>
                 </div>
                 <h3 className="text-xl font-bold text-stone-800 group-hover:text-teal-600 transition-colors line-clamp-2">{video.fileName}</h3>
               </motion.div>
@@ -142,14 +147,14 @@ export function Gallery() {
         ) : null}
 
         {!loading && !error && activeTab === "images" && images.length === 0 ? (
-          <div className="bg-white border border-stone-100 rounded-2xl p-6 text-stone-500 text-sm">
-            Chua co hinh anh nao trong thu vien.
+          <div className="rounded-2xl border border-stone-200 bg-white p-6 text-sm text-stone-500">
+            Chưa có hình ảnh nào trong thư viện.
           </div>
         ) : null}
 
         {!loading && !error && activeTab === "videos" && videos.length === 0 ? (
-          <div className="bg-white border border-stone-100 rounded-2xl p-6 text-stone-500 text-sm">
-            Chua co video nao trong thu vien.
+          <div className="rounded-2xl border border-stone-200 bg-white p-6 text-sm text-stone-500">
+            Chưa có video nào trong thư viện.
           </div>
         ) : null}
       </div>

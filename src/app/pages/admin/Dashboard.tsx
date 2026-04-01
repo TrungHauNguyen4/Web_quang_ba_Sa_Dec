@@ -1,177 +1,212 @@
-import { 
-  Users, 
-  MapPin, 
-  Newspaper, 
-  FileText,
-  TrendingUp,
+﻿import {
+  FileCheck2,
+  FileClock,
+  FileWarning,
+  FileSpreadsheet,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  BellRing,
+  ShieldAlert,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
   ResponsiveContainer,
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
   BarChart,
-  Bar
+  Bar,
 } from "recharts";
 
-const trafficData = [
-  { name: 'T2', visitors: 4000 },
-  { name: 'T3', visitors: 3000 },
-  { name: 'T4', visitors: 2000 },
-  { name: 'T5', visitors: 2780 },
-  { name: 'T6', visitors: 1890 },
-  { name: 'T7', visitors: 2390 },
-  { name: 'CN', visitors: 3490 },
+const dossierTrend = [
+  { day: "T2", received: 48, resolved: 42 },
+  { day: "T3", received: 52, resolved: 39 },
+  { day: "T4", received: 46, resolved: 44 },
+  { day: "T5", received: 61, resolved: 50 },
+  { day: "T6", received: 58, resolved: 47 },
+  { day: "T7", received: 24, resolved: 20 },
+  { day: "CN", received: 10, resolved: 8 },
 ];
 
-const postData = [
-  { name: 'Tuần 1', posts: 12 },
-  { name: 'Tuần 2', posts: 19 },
-  { name: 'Tuần 3', posts: 15 },
-  { name: 'Tuần 4', posts: 22 },
+const departmentBacklog = [
+  { unit: "Tư pháp", pending: 21 },
+  { unit: "Hộ tịch", pending: 15 },
+  { unit: "Đất đai", pending: 17 },
+  { unit: "Lao động", pending: 9 },
+  { unit: "Văn hóa", pending: 12 },
 ];
 
 export function Dashboard() {
   const stats = [
-    { title: "Tổng Bài Viết", value: "156", icon: Newspaper, color: "bg-blue-50 text-blue-600", trend: "+12%", isUp: true },
-    { title: "Tổng Địa Danh", value: "42", icon: MapPin, color: "bg-orange-50 text-orange-600", trend: "+2%", isUp: true },
-    { title: "Tổng Người Dùng", value: "1,204", icon: Users, color: "bg-purple-50 text-purple-600", trend: "+18%", isUp: true },
-    { title: "Hồ Sơ Dịch Vụ", value: "89", icon: FileText, color: "bg-green-50 text-green-600", trend: "-5%", isUp: false },
+    {
+      title: "Hồ sơ tiếp nhận hôm nay",
+      value: "61",
+      icon: FileSpreadsheet,
+      tone: "bg-blue-50 text-blue-700",
+      trend: "+8%",
+      up: true,
+    },
+    {
+      title: "Hồ sơ đang xử lý",
+      value: "128",
+      icon: FileClock,
+      tone: "bg-amber-50 text-amber-700",
+      trend: "+3%",
+      up: false,
+    },
+    {
+      title: "Hồ sơ quá hạn",
+      value: "7",
+      icon: FileWarning,
+      tone: "bg-rose-50 text-rose-700",
+      trend: "-2",
+      up: true,
+    },
+    {
+      title: "Hồ sơ đã hoàn tất",
+      value: "1,294",
+      icon: FileCheck2,
+      tone: "bg-emerald-50 text-emerald-700",
+      trend: "+11%",
+      up: true,
+    },
+  ];
+
+  const quickTasks = [
+    { label: "Bình luận chờ duyệt", value: 6, level: "warning" },
+    { label: "Tin tức cho xuất bản", value: 4, level: "info" },
+    { label: "Hồ sơ cần bổ sung", value: 9, level: "warning" },
+    { label: "Cảnh báo quá hạn", value: 2, level: "danger" },
   ];
 
   const activities = [
-    { user: "Nguyễn Văn A", action: "đã thêm bài viết mới", target: "Lễ hội Hoa Xuân 2026", time: "10 phút trước" },
-    { user: "Trần Thị B", action: "đã cập nhật địa danh", target: "Chùa Kiến An Cung", time: "1 giờ trước" },
-    { user: "Lê Văn C", action: "đã duyệt hồ sơ", target: "HS-12345", time: "3 giờ trước" },
-    { user: "Hệ thống", action: "đã sao lưu dữ liệu định kỳ", target: "", time: "5 giờ trước" },
+    { actor: "Nguyễn Văn A", action: "duyệt hồ sơ", target: "HS-2026-00142", time: "5 phút trước" },
+    { actor: "Trần Thị B", action: "cập nhật tin", target: "Thông báo lịch tiếp dân", time: "18 phút trước" },
+    { actor: "Lê Văn C", action: "từ chối hồ sơ", target: "HS-2026-00135", time: "41 phút trước" },
+    { actor: "Hệ thống", action: "đồng bộ dữ liệu", target: "báo cáo ngày", time: "1 giờ trước" },
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-stone-800">Tổng Quan</h1>
-        <div className="text-sm text-stone-500">Cập nhật lần cuối: Hôm nay, 08:00 AM</div>
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 md:p-6 shadow-sm">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">Bảng điều hành nghiệp vụ</h1>
+            <p className="text-sm text-slate-500">Giám sát tiếp nhận, xử lý và trả kết quả hồ sơ hành chính cấp phường.</p>
+          </div>
+          <div className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs text-blue-700">
+            Phiên trực: 01/04/2026 - Cập nhật lúc 10:45
+          </div>
+        </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, i) => (
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {stats.map((stat, idx) => (
           <motion.div
             key={stat.title}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="bg-white p-6 rounded-2xl shadow-sm border border-stone-100 flex items-center justify-between"
+            transition={{ delay: idx * 0.06 }}
+            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
           >
-            <div>
-              <p className="text-sm font-medium text-stone-500 mb-1">{stat.title}</p>
-              <h3 className="text-3xl font-bold text-stone-800">{stat.value}</h3>
-              <div className={`flex items-center gap-1 mt-2 text-sm font-medium ${stat.isUp ? 'text-green-600' : 'text-red-500'}`}>
-                {stat.isUp ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
-                {stat.trend} <span className="text-stone-400 font-normal">so với tháng trước</span>
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.12em] text-slate-500">{stat.title}</p>
+                <p className="mt-2 text-3xl font-bold text-slate-900">{stat.value}</p>
               </div>
+              <span className={`h-11 w-11 rounded-xl flex items-center justify-center ${stat.tone}`}>
+                <stat.icon size={22} />
+              </span>
             </div>
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${stat.color}`}>
-              <stat.icon size={28} />
+            <div className={`mt-3 flex items-center gap-1 text-sm ${stat.up ? "text-emerald-600" : "text-amber-600"}`}>
+              {stat.up ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
+              {stat.trend}
+              <span className="text-slate-400">so với tuần trước</span>
             </div>
           </motion.div>
         ))}
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-white p-6 rounded-2xl shadow-sm border border-stone-100 lg:col-span-2"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-stone-800">Lưu Lượng Truy Cập</h2>
-            <select className="text-sm border border-stone-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-green-500 bg-stone-50">
-              <option>7 ngày qua</option>
-              <option>30 ngày qua</option>
-              <option>Năm nay</option>
-            </select>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm xl:col-span-2">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-bold text-slate-900">Tiếp nhận và giải quyết theo ngày</h2>
+            <span className="text-xs text-slate-500">Đơn vị: Hồ sơ</span>
           </div>
-          <div className="h-72 w-full">
+          <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trafficData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#6b7280'}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#6b7280'}} dx={-10} />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  itemStyle={{ color: '#16a34a', fontWeight: 'bold' }}
-                />
-                <Line type="monotone" dataKey="visitors" stroke="#16a34a" strokeWidth={3} dot={{r: 4, fill: '#16a34a', strokeWidth: 2, stroke: '#fff'}} activeDot={{r: 6}} />
+              <LineChart data={dossierTrend}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: "#64748b" }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: "#64748b" }} />
+                <Tooltip />
+                <Line type="monotone" dataKey="received" name="Tiếp nhận" stroke="#2563eb" strokeWidth={3} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="resolved" name="Giải quyết" stroke="#0f766e" strokeWidth={3} dot={{ r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-white p-6 rounded-2xl shadow-sm border border-stone-100"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-stone-800">Bài Viết Mới</h2>
-            <TrendingUp size={20} className="text-stone-400" />
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-bold text-slate-900">Hồ sơ tồn theo bộ phận</h2>
+            <ShieldAlert size={18} className="text-amber-600" />
           </div>
-          <div className="h-72 w-full">
+          <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={postData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#6b7280'}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#6b7280'}} dx={-10} />
-                <Tooltip 
-                  cursor={{fill: '#f3f4f6'}}
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                />
-                <Bar dataKey="posts" fill="#f97316" radius={[4, 4, 0, 0]} maxBarSize={40} />
+              <BarChart data={departmentBacklog}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <XAxis dataKey="unit" axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: "#64748b" }} />
+                <Tooltip />
+                <Bar dataKey="pending" fill="#f59e0b" radius={[5, 5, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </motion.div>
+        </div>
       </div>
 
-      {/* Recent Activities */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="bg-white rounded-2xl shadow-sm border border-stone-100 overflow-hidden"
-      >
-        <div className="p-6 border-b border-stone-100 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-stone-800">Hoạt Động Gần Đây</h2>
-          <button className="text-sm text-green-600 font-medium hover:text-green-700">Xem tất cả</button>
-        </div>
-        <div className="divide-y divide-stone-100">
-          {activities.map((activity, i) => (
-            <div key={i} className="p-4 flex items-center justify-between hover:bg-stone-50/50 transition-colors">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-stone-600 font-bold shrink-0 text-sm">
-                  {activity.user.charAt(0)}
-                </div>
-                <div>
-                  <p className="text-sm text-stone-800">
-                    <span className="font-semibold">{activity.user}</span> {activity.action} {activity.target && <span className="font-medium text-stone-600">"{activity.target}"</span>}
-                  </p>
-                  <p className="text-xs text-stone-500 mt-0.5">{activity.time}</p>
-                </div>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center gap-2 text-slate-900">
+            <BellRing size={18} className="text-blue-600" />
+            <h2 className="text-lg font-bold">Công việc cần xử lý ngay</h2>
+          </div>
+          <div className="space-y-3">
+            {quickTasks.map((task) => (
+              <div key={task.label} className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <span className="text-sm text-slate-700">{task.label}</span>
+                <span className={`rounded-full px-3 py-1 text-xs font-semibold ${task.level === "danger" ? "bg-rose-100 text-rose-700" : task.level === "warning" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"}`}>
+                  {task.value}
+                </span>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </motion.div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="border-b border-slate-200 px-5 py-4">
+            <h2 className="text-lg font-bold text-slate-900">Nhật ký hoạt động</h2>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {activities.map((item, idx) => (
+              <div key={idx} className="px-5 py-4">
+                <p className="text-sm text-slate-700">
+                  <span className="font-semibold text-slate-900">{item.actor}</span> {item.action} <span className="font-medium">{item.target}</span>
+                </p>
+                <p className="text-xs text-slate-500 mt-1">{item.time}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
+
+
+
+

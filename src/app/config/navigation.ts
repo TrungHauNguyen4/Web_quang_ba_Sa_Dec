@@ -1,21 +1,21 @@
-export type PublicNavigationItem = {
+﻿export type PublicNavigationItem = {
   label: string;
   path: string;
   description: string;
 };
 
 export const publicNavigation: PublicNavigationItem[] = [
-  { label: "Trang chủ", path: "/", description: "Cổng thông tin phường/xã" },
-  { label: "Địa bàn", path: "/dia-danh", description: "Thông tin khu vực, điểm công cộng" },
-  { label: "Văn hóa & đời sống", path: "/am-thuc", description: "Hoạt động cộng đồng, ẩm thực địa phương" },
-  { label: "Bản đồ", path: "/ban-do", description: "Vị trí trụ sở, cơ sở hạ tầng" },
-  { label: "Tin tức", path: "/tin-tuc", description: "Thông báo, văn bản, sự kiện" },
-  { label: "Giới thiệu", path: "/gioi-thieu", description: "Tổng quan phường/xã" },
-  { label: "Thư viện", path: "/thu-vien", description: "Hình ảnh, video minh bạch" },
-  { label: "Dịch vụ", path: "/dich-vu", description: "Dịch vụ công trực tuyến" },
-  { label: "Liên hệ", path: "/lien-he", description: "Phản ánh, hỗ trợ người dân" },
+  { label: "TRANG CHỦ", path: "/", description: "Cổng thông tin điện tử" },
+  { label: "DOANH NGHIỆP", path: "/dich-vu", description: "Dịch vụ công và thủ tục" },
+  { label: "CÔNG DÂN", path: "/lien-he", description: "Phản ánh kiến nghị" },
+  { label: "DU KHÁCH", path: "/dia-danh", description: "Thông tin địa bàn" },
+  { label: "CHÍNH QUYỀN", path: "/gioi-thieu", description: "Điều hành và giới thiệu" },
+  { label: "TIN TỨC", path: "/tin-tuc", description: "Thông báo văn bản" },
+  { label: "THƯ VIỆN", path: "/thu-vien", description: "Thư viện ảnh và video" },
 ];
 
 export const footerQuickLinks = publicNavigation.filter(({ path }) =>
-  ["/dia-danh", "/am-thuc", "/dich-vu", "/tin-tuc"].includes(path),
+  ["/dia-danh", "/dich-vu", "/tin-tuc", "/lien-he"].includes(path),
 );
+
+

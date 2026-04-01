@@ -21,38 +21,6 @@ function resolveImageUrl(article: NewsItem) {
   return article.imageUrl || NEWS_FALLBACK_IMAGE;
 }
 
-function NewsListSkeleton() {
-  return (
-    <div className="space-y-10 mb-10 animate-pulse">
-      <div className="bg-white rounded-3xl border border-stone-100 overflow-hidden flex flex-col lg:flex-row">
-        <div className="lg:w-3/5 h-80 bg-stone-200" />
-        <div className="lg:w-2/5 p-8 space-y-4">
-          <div className="h-4 w-40 bg-stone-200 rounded" />
-          <div className="h-8 w-full bg-stone-200 rounded" />
-          <div className="h-8 w-3/4 bg-stone-200 rounded" />
-          <div className="h-4 w-full bg-stone-200 rounded" />
-          <div className="h-4 w-5/6 bg-stone-200 rounded" />
-          <div className="h-11 w-32 bg-stone-200 rounded-full" />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {[1, 2, 3].map((item) => (
-          <div key={item} className="bg-white rounded-2xl border border-stone-100 overflow-hidden">
-            <div className="h-56 bg-stone-200" />
-            <div className="p-6 space-y-3">
-              <div className="h-4 w-1/3 bg-stone-200 rounded" />
-              <div className="h-6 w-full bg-stone-200 rounded" />
-              <div className="h-4 w-full bg-stone-200 rounded" />
-              <div className="h-4 w-4/5 bg-stone-200 rounded" />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function formatDate(value?: string | null) {
   if (!value) return "";
   const date = new Date(value);
@@ -84,7 +52,7 @@ export function News() {
         setArticles(items.filter((x) => Boolean(x.slug)));
       } catch {
         if (!active) return;
-        setError("Khong tai duoc danh sach tin tuc tu API.");
+        setError("Không tải được danh sách tin tức từ API.");
       } finally {
         if (active) {
           setIsLoading(false);
@@ -111,44 +79,46 @@ export function News() {
 
       <div className="container mx-auto px-4 mt-12">
         {isLoading ? (
-          <NewsListSkeleton />
+          <div className="mb-10 rounded-2xl border border-stone-200 bg-white p-6 text-sm text-stone-500">
+            Đang tải danh sách tin tức...
+          </div>
         ) : null}
 
         {!isLoading && error ? (
-          <div className="mb-10 bg-red-50 border border-red-200 text-red-700 rounded-2xl p-6">
+          <div className="mb-10 rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">
             {error}
           </div>
         ) : null}
 
         {/* Featured Article */}
         {!isLoading && !error && featuredArticle ? (
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-12 bg-white rounded-3xl overflow-hidden shadow-xl border border-stone-100 flex flex-col lg:flex-row group"
-        >
-          <div className="lg:w-3/5 h-80 lg:h-auto relative overflow-hidden">
-            <img src={resolveImageUrl(featuredArticle)} alt={featuredArticle.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-          </div>
-          <div className="lg:w-2/5 p-8 lg:p-12 flex flex-col justify-center">
-            <div className="flex items-center gap-4 text-sm text-stone-500 mb-4">
-              <span className="flex items-center gap-1"><Calendar size={16} /> {formatDate(featuredArticle.publishedAt) || formatDate(featuredArticle.createdAt)}</span>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-12 bg-white rounded-3xl overflow-hidden shadow-xl border border-stone-100 flex flex-col lg:flex-row group"
+          >
+            <div className="lg:w-3/5 h-80 lg:h-auto relative overflow-hidden">
+              <img src={resolveImageUrl(featuredArticle)} alt={featuredArticle.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
             </div>
-            <h2 className="text-2xl lg:text-3xl font-bold text-stone-800 mb-6 group-hover:text-emerald-700 transition-colors">
-              {featuredArticle.title}
-            </h2>
-            <p className="text-stone-600 text-lg mb-8 line-clamp-3">{featuredArticle.excerpt || "Dang cap nhat noi dung tom tat..."}</p>
-            <Link to={`/tin-tuc/${featuredArticle.slug}`} className="self-start bg-emerald-100 text-emerald-700 hover:bg-emerald-700 hover:text-white px-6 py-3 rounded-full font-semibold transition-colors flex items-center gap-2">
-              Đọc tiếp <ArrowRight size={18} />
-            </Link>
-          </div>
-        </motion.div>
+            <div className="lg:w-2/5 p-8 lg:p-12 flex flex-col justify-center">
+              <div className="flex items-center gap-4 text-sm text-stone-500 mb-4">
+                <span className="flex items-center gap-1"><Calendar size={16} /> {formatDate(featuredArticle.publishedAt) || formatDate(featuredArticle.createdAt)}</span>
+              </div>
+              <h2 className="text-2xl lg:text-3xl font-bold text-stone-800 mb-6 group-hover:text-emerald-700 transition-colors">
+                {featuredArticle.title}
+              </h2>
+              <p className="text-stone-600 text-lg mb-8 line-clamp-3">{featuredArticle.excerpt || "Đang cập nhật nội dung tóm tắt..."}</p>
+              <Link to={`/tin-tuc/${featuredArticle.slug}`} className="self-start bg-emerald-100 text-emerald-700 hover:bg-emerald-700 hover:text-white px-6 py-3 rounded-full font-semibold transition-colors flex items-center gap-2">
+                Đọc tiếp <ArrowRight size={18} />
+              </Link>
+            </div>
+          </motion.div>
         ) : null}
 
         {/* Regular Articles Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {regularArticles.map((article, i) => (
-            <motion.div 
+            <motion.div
               key={article.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -166,7 +136,7 @@ export function News() {
                 <h3 className="text-xl font-bold text-stone-800 mb-3 group-hover:text-emerald-700 transition-colors line-clamp-2">
                   {article.title}
                 </h3>
-                <p className="text-stone-600 mb-6 line-clamp-3 text-sm flex-grow">{article.excerpt || "Dang cap nhat noi dung tom tat..."}</p>
+                <p className="text-stone-600 mb-6 line-clamp-3 text-sm flex-grow">{article.excerpt || "Đang cập nhật nội dung tóm tắt..."}</p>
                 <Link to={`/tin-tuc/${article.slug}`} className="text-emerald-700 font-semibold hover:text-emerald-900 transition-colors flex items-center gap-1 mt-auto">
                   Đọc tiếp <ArrowRight size={16} />
                 </Link>
@@ -174,6 +144,12 @@ export function News() {
             </motion.div>
           ))}
         </div>
+
+        {!isLoading && !error && articles.length === 0 ? (
+          <div className="mt-10 rounded-2xl border border-stone-200 bg-white p-6 text-sm text-stone-500">
+            Chưa có tin tức nào từ hệ thống.
+          </div>
+        ) : null}
       </div>
     </div>
   );

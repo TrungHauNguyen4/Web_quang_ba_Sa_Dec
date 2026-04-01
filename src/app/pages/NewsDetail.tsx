@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { Calendar, ChevronLeft } from "lucide-react";
 import { newsService } from "../services/news.service";
@@ -51,7 +51,7 @@ export function NewsDetail() {
 
     const loadDetail = async () => {
       if (!slug) {
-        setError("Khong tim thay duong dan bai viet.");
+        setError("Không tìm thấy đường dẫn bài viết.");
         setIsLoading(false);
         return;
       }
@@ -65,7 +65,7 @@ export function NewsDetail() {
         setArticle(data);
       } catch {
         if (!active) return;
-        setError("Khong tai duoc chi tiet bai viet.");
+        setError("Không tải được chi tiết bài viết.");
       } finally {
         if (active) {
           setIsLoading(false);
@@ -83,7 +83,7 @@ export function NewsDetail() {
   return (
     <div className="w-full bg-stone-50 min-h-screen pb-20">
       <div className="bg-emerald-900 text-white py-14 text-center">
-        <h1 className="text-3xl md:text-4xl font-bold px-4">Chi tiet tin tuc</h1>
+        <h1 className="text-3xl md:text-4xl font-bold px-4">Chi tiết tin tức</h1>
       </div>
 
       <div className="container mx-auto px-4 mt-10 max-w-4xl">
@@ -91,7 +91,7 @@ export function NewsDetail() {
           to="/tin-tuc"
           className="inline-flex items-center gap-2 text-emerald-700 hover:text-emerald-900 font-medium"
         >
-          <ChevronLeft size={18} /> Quay lai danh sach tin
+          <ChevronLeft size={18} /> Quay lại danh sách tin
         </Link>
 
         {isLoading ? (
@@ -126,7 +126,7 @@ export function NewsDetail() {
             ) : null}
 
             <div className="mt-8 prose prose-stone max-w-none leading-8 text-stone-700 whitespace-pre-line">
-              {article.content || "Bai viet nay chua co noi dung chi tiet."}
+              {article.content || "Bài viết này chưa có nội dung chi tiết."}
             </div>
           </article>
         ) : null}
@@ -134,3 +134,7 @@ export function NewsDetail() {
     </div>
   );
 }
+
+
+
+
