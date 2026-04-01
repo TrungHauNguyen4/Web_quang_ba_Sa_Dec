@@ -69,6 +69,16 @@
 - Media: `POST /api/admin/media/upload`  
 - Comments: `POST /api/comments`, admin moderation endpoints
 
+**Comments & moderation (implemented)**
+- `POST /api/comments`
+- `GET /api/comments?targetType=news|destination&targetId={guid}`
+- `GET /api/admin/comments?page=1&pageSize=20&status=Pending|Approved|Rejected`
+- `PATCH /api/admin/comments/{commentId}/approve`
+- `PATCH /api/admin/comments/{commentId}/reject`
+
+**Run tests**
+- `dotnet test Sadec.Api.Tests/Sadec.Api.Tests.csproj`
+
 **Đơn giản hóa triển khai cho sinh viên**
 - Lưu file vào `wwwroot/uploads/` (không dùng cloud).  
 - Dùng local SQL Server / SQL Server Express (connection string trong `appsettings.Development.json`).  

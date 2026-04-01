@@ -7,7 +7,9 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
 using Sadec.Api.Data;
 using Sadec.Api.Entities;
+using Sadec.Api.Middlewares;
 using Sadec.Api.Services.Auth;
+using Sadec.Api.Services.Comments;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -110,6 +112,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Auth service
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 
 // Configure JWT authentication
 var jwtSection = builder.Configuration.GetSection("Jwt");
@@ -156,6 +159,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseStaticFiles(new StaticFileOptions
 {
