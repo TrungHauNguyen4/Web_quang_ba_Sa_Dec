@@ -9,6 +9,9 @@ public sealed class ThuTucDichVu
 
     public bool DangHoatDong { get; set; } = true;
 
+    // JSON payload for dynamic citizen form per service.
+    public string? CauHinhBieuMauJson { get; set; }
+
     public DateTime TaoLuc { get; set; } = DateTime.UtcNow;
     public DateTime CapNhatLuc { get; set; } = DateTime.UtcNow;
 }

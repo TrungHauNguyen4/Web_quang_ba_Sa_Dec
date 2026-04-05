@@ -12,6 +12,11 @@ public sealed class MonAn
     public string? PhanLoai { get; set; }
 
     public string? AnhDaiDienUrl { get; set; }
+    public string? AnhBoSungJson { get; set; }
+    public string? VideoUrl { get; set; }
+
+    public double? ViDo { get; set; }
+    public double? KinhDo { get; set; }
 
     public ContentStatus TrangThai { get; set; } = ContentStatus.Draft;
 

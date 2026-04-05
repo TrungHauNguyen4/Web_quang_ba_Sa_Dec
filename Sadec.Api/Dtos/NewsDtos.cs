@@ -8,7 +8,9 @@ public sealed record NewsDto(
     string Title,
     string Slug,
     string? Excerpt,
+    string? Category,
     string? ImageUrl,
+    string? VideoUrl,
     string? Content,
     ContentStatus Status,
     DateTime? PublishedAt,
@@ -27,8 +29,14 @@ public sealed class NewsCreateDto
     [StringLength(500)]
     public string? Excerpt { get; set; }
 
+    [StringLength(120)]
+    public string? Category { get; set; }
+
     [StringLength(1000)]
     public string? ImageUrl { get; set; }
+
+    [StringLength(1000)]
+    public string? VideoUrl { get; set; }
 
     public string? Content { get; set; }
 
@@ -48,8 +56,14 @@ public sealed class NewsUpdateDto
     [StringLength(500)]
     public string? Excerpt { get; set; }
 
+    [StringLength(120)]
+    public string? Category { get; set; }
+
     [StringLength(1000)]
     public string? ImageUrl { get; set; }
+
+    [StringLength(1000)]
+    public string? VideoUrl { get; set; }
 
     public string? Content { get; set; }
 

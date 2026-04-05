@@ -21,7 +21,6 @@ export const ProtectedRoute = ({ roles }: ProtectedRouteProps) => {
   }
 
   if (roles && (!user.role || !roles.includes(user.role))) {
-    // Không đủ quyền: đưa về trang chủ công khai
     return <Navigate to="/" replace />;
   }
 

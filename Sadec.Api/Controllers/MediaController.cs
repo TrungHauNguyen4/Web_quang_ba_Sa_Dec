@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -175,5 +176,89 @@ public class MediaController(ApplicationDbContext dbContext, IWebHostEnvironment
 
         var totalPages = total == 0 ? 0 : (int)Math.Ceiling(total / (double)pageSize);
         return Ok(new PagedResultDto<MediaFileDto>(items, page, pageSize, total, totalPages));
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        var entity = await dbContext.MediaFiles.FirstOrDefaultAsync(x => x.MaSo == id, cancellationToken);
+        if (entity is null) return NotFound();
+
+        var blockingApplicationId = await FindUnresolvedApplicationReferencingUrlAsync(entity.Url, cancellationToken);
+        if (!string.IsNullOrWhiteSpace(blockingApplicationId))
+        {
+            return Conflict(new
+            {
+                message = $"Khong the xoa tep. Tep dang duoc gan cho ho so {blockingApplicationId} chua danh dau da giai quyet thanh cong."
+            });
+        }
+
+        var webRootPath = environment.WebRootPath;
+        if (string.IsNullOrWhiteSpace(webRootPath))
+        {
+            webRootPath = Path.Combine(environment.ContentRootPath, "wwwroot");
+        }
+
+        if (!string.IsNullOrWhiteSpace(entity.Url))
+        {
+            try
+            {
+                var uri = new Uri(entity.Url);
+                var relativePath = uri.AbsolutePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+                var physicalPath = Path.Combine(webRootPath, relativePath);
+                if (System.IO.File.Exists(physicalPath))
+                {
+                    System.IO.File.Delete(physicalPath);
+                }
+            }
+            catch
+            {
+                // Ignore invalid URL format and continue deleting DB record.
+            }
+        }
+
+        dbContext.MediaFiles.Remove(entity);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return NoContent();
+    }
+
+    private async Task<string?> FindUnresolvedApplicationReferencingUrlAsync(string mediaUrl, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(mediaUrl)) return null;
+
+        var unresolvedApps = await dbContext.HoSoDichVus
+            .Where(x => x.TrangThai != "completed")
+            .Select(x => new { x.MaHoSo, x.TepDinhKemJson })
+            .ToListAsync(cancellationToken);
+
+        foreach (var app in unresolvedApps)
+        {
+            var urls = ParseAttachmentUrls(app.TepDinhKemJson);
+            if (urls.Any(url => string.Equals(url, mediaUrl, StringComparison.OrdinalIgnoreCase)))
+            {
+                return app.MaHoSo;
+            }
+        }
+
+        return null;
+    }
+
+    private static IReadOnlyList<string> ParseAttachmentUrls(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return [];
+
+        try
+        {
+            var parsed = JsonSerializer.Deserialize<List<string>>(raw) ?? [];
+            return parsed
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+        catch
+        {
+            return [];
+        }
     }
 }

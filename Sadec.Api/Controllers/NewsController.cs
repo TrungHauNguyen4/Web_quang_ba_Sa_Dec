@@ -17,6 +17,7 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
         [FromQuery] string? q = null,
+        [FromQuery] string? category = null,
         CancellationToken cancellationToken = default)
     {
         page = Math.Max(1, page);
@@ -31,6 +32,12 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
             query = query.Where(x => x.TieuDe.Contains(keyword) || (x.MoTaNgan != null && x.MoTaNgan.Contains(keyword)));
         }
 
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            var normalizedCategory = category.Trim();
+            query = query.Where(x => x.DanhMuc != null && x.DanhMuc == normalizedCategory);
+        }
+
         var total = await query.CountAsync(cancellationToken);
 
         var items = await query
@@ -42,7 +49,9 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
                 x.TieuDe,
                 x.DuongDan,
                 x.MoTaNgan,
+                x.DanhMuc,
                 x.AnhDaiDienUrl,
+                x.VideoUrl,
                 x.NoiDung,
                 x.TrangThai,
                 x.PhatHanhLuc,
@@ -55,6 +64,19 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
         return Ok(new PagedResultDto<NewsDto>(items, page, pageSize, total, totalPages));
     }
 
+    [HttpGet("categories")]
+    public async Task<ActionResult<IReadOnlyList<string>>> GetCategories(CancellationToken cancellationToken)
+    {
+        var categories = await dbContext.TinTucs
+            .Where(x => x.TrangThai == ContentStatus.Published && x.DanhMuc != null && x.DanhMuc != string.Empty)
+            .Select(x => x.DanhMuc!)
+            .Distinct()
+            .OrderBy(x => x)
+            .ToListAsync(cancellationToken);
+
+        return Ok(categories);
+    }
+
     // Public GET chi tiết: chỉ xem được tin đã xuất bản
     [HttpGet("{maSo:guid}")]
     public async Task<ActionResult<NewsDto>> GetById(Guid maSo, CancellationToken cancellationToken)
@@ -65,12 +87,18 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
 
         if (entity is null) return NotFound();
 
+        entity.LuotXem += 1;
+        entity.CapNhatLuc = DateTime.UtcNow;
+        await dbContext.SaveChangesAsync(cancellationToken);
+
         return Ok(new NewsDto(
             entity.MaSo,
             entity.TieuDe,
             entity.DuongDan,
             entity.MoTaNgan,
+            entity.DanhMuc,
             entity.AnhDaiDienUrl,
+            entity.VideoUrl,
             entity.NoiDung,
             entity.TrangThai,
             entity.PhatHanhLuc,
@@ -93,12 +121,18 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
 
         if (entity is null) return NotFound();
 
+        entity.LuotXem += 1;
+        entity.CapNhatLuc = DateTime.UtcNow;
+        await dbContext.SaveChangesAsync(cancellationToken);
+
         return Ok(new NewsDto(
             entity.MaSo,
             entity.TieuDe,
             entity.DuongDan,
             entity.MoTaNgan,
+            entity.DanhMuc,
             entity.AnhDaiDienUrl,
+            entity.VideoUrl,
             entity.NoiDung,
             entity.TrangThai,
             entity.PhatHanhLuc,
@@ -114,6 +148,7 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] string? q = null,
+        [FromQuery] string? category = null,
         [FromQuery] ContentStatus? status = null,
         CancellationToken cancellationToken = default)
     {
@@ -126,6 +161,12 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
         {
             var keyword = q.Trim();
             query = query.Where(x => x.TieuDe.Contains(keyword) || (x.MoTaNgan != null && x.MoTaNgan.Contains(keyword)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            var normalizedCategory = category.Trim();
+            query = query.Where(x => x.DanhMuc != null && x.DanhMuc == normalizedCategory);
         }
 
         if (status.HasValue)
@@ -144,7 +185,9 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
                 x.TieuDe,
                 x.DuongDan,
                 x.MoTaNgan,
+                x.DanhMuc,
                 x.AnhDaiDienUrl,
+                x.VideoUrl,
                 x.NoiDung,
                 x.TrangThai,
                 x.PhatHanhLuc,
@@ -171,7 +214,9 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
             TieuDe = request.Title.Trim(),
             DuongDan = slug,
             MoTaNgan = request.Excerpt,
+            DanhMuc = string.IsNullOrWhiteSpace(request.Category) ? null : request.Category.Trim(),
             AnhDaiDienUrl = request.ImageUrl,
+            VideoUrl = request.VideoUrl,
             NoiDung = request.Content,
             TrangThai = request.Status,
             PhatHanhLuc = request.PublishedAt
@@ -185,7 +230,9 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
             entity.TieuDe,
             entity.DuongDan,
             entity.MoTaNgan,
+            entity.DanhMuc,
             entity.AnhDaiDienUrl,
+            entity.VideoUrl,
             entity.NoiDung,
             entity.TrangThai,
             entity.PhatHanhLuc,
@@ -209,7 +256,9 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
         entity.TieuDe = request.Title.Trim();
         entity.DuongDan = slug;
         entity.MoTaNgan = request.Excerpt;
+        entity.DanhMuc = string.IsNullOrWhiteSpace(request.Category) ? null : request.Category.Trim();
         entity.AnhDaiDienUrl = request.ImageUrl;
+        entity.VideoUrl = request.VideoUrl;
         entity.NoiDung = request.Content;
         entity.TrangThai = request.Status;
         entity.PhatHanhLuc = request.PublishedAt;
@@ -226,6 +275,14 @@ public class NewsController(ApplicationDbContext dbContext) : ControllerBase
     {
         var entity = await dbContext.TinTucs.FirstOrDefaultAsync(x => x.MaSo == maSo, cancellationToken);
         if (entity is null) return NotFound();
+
+        var relatedComments = await dbContext.BinhLuans
+            .Where(x => x.TargetId == maSo && (x.TargetType == "news" || x.TargetType == "tin-tuc" || x.TargetType == "tintuc"))
+            .ToListAsync(cancellationToken);
+        if (relatedComments.Count > 0)
+        {
+            dbContext.BinhLuans.RemoveRange(relatedComments);
+        }
 
         dbContext.TinTucs.Remove(entity);
         await dbContext.SaveChangesAsync(cancellationToken);

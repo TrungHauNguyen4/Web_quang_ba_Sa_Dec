@@ -42,6 +42,22 @@ public sealed class CommentsController(ICommentService commentService) : Control
         return Ok(result);
     }
 
+    [HttpGet("/api/admin/comments/auto-approve")]
+    [Authorize(Roles = "Admin,Editor")]
+    public async Task<ActionResult<CommentAutoApproveDto>> GetAutoApprove(CancellationToken cancellationToken)
+    {
+        var enabled = await commentService.GetAutoApproveEnabledAsync(cancellationToken);
+        return Ok(new CommentAutoApproveDto(enabled));
+    }
+
+    [HttpPut("/api/admin/comments/auto-approve")]
+    [Authorize(Roles = "Admin,Editor")]
+    public async Task<ActionResult<CommentAutoApproveDto>> SetAutoApprove([FromBody] CommentAutoApproveUpdateDto request, CancellationToken cancellationToken)
+    {
+        await commentService.SetAutoApproveEnabledAsync(request.Enabled, cancellationToken);
+        return Ok(new CommentAutoApproveDto(request.Enabled));
+    }
+
     [HttpPatch("/api/admin/comments/{commentId:guid}/approve")]
     [Authorize(Roles = "Admin,Editor")]
     public async Task<ActionResult<CommentDto>> Approve(Guid commentId, CancellationToken cancellationToken)
@@ -56,5 +72,29 @@ public sealed class CommentsController(ICommentService commentService) : Control
     {
         var result = await commentService.UpdateStatusAsync(commentId, CommentStatus.Rejected, cancellationToken);
         return Ok(result);
+    }
+
+    [HttpDelete("/api/admin/comments/{commentId:guid}")]
+    [Authorize(Roles = "Admin,Editor")]
+    public async Task<IActionResult> Delete(Guid commentId, CancellationToken cancellationToken)
+    {
+        await commentService.DeleteAsync(commentId, cancellationToken);
+        return NoContent();
+    }
+
+    [HttpDelete("/api/admin/comments/history")]
+    [Authorize(Roles = "Admin,Editor")]
+    public async Task<IActionResult> DeleteReviewedHistory([FromQuery] bool includePending = false, CancellationToken cancellationToken = default)
+    {
+        var deletedCount = await commentService.DeleteReviewedHistoryAsync(includePending, cancellationToken);
+        return Ok(new { deletedCount });
+    }
+
+    [HttpDelete("/api/admin/comments")]
+    [Authorize(Roles = "Admin,Editor")]
+    public async Task<IActionResult> DeleteAll(CancellationToken cancellationToken = default)
+    {
+        var deletedCount = await commentService.DeleteReviewedHistoryAsync(includePending: true, cancellationToken);
+        return Ok(new { deletedCount });
     }
 }

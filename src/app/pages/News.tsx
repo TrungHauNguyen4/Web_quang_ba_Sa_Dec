@@ -9,7 +9,9 @@ type NewsItem = {
   title: string;
   slug: string;
   excerpt?: string | null;
+  category?: string | null;
   imageUrl?: string | null;
+  videoUrl?: string | null;
   content?: string | null;
   publishedAt?: string | null;
   createdAt?: string | null;
@@ -30,6 +32,9 @@ function formatDate(value?: string | null) {
 
 export function News() {
   const [articles, setArticles] = useState<NewsItem[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,7 +46,12 @@ export function News() {
       setError(null);
 
       try {
-        const response = await newsService.getAll({ page: 1, pageSize: 12 });
+        const response = await newsService.getAll({
+          page: 1,
+          pageSize: 12,
+          q: searchTerm.trim() || undefined,
+          category: selectedCategory === "all" ? undefined : selectedCategory,
+        });
         const items: NewsItem[] = Array.isArray(response?.items)
           ? response.items
           : Array.isArray(response)
@@ -65,6 +75,27 @@ export function News() {
     return () => {
       active = false;
     };
+  }, [selectedCategory, searchTerm]);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadCategories = async () => {
+      try {
+        const data = await newsService.getCategories();
+        if (!active) return;
+        setCategories(Array.isArray(data) ? data : []);
+      } catch {
+        if (!active) return;
+        setCategories([]);
+      }
+    };
+
+    void loadCategories();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const featuredArticle = useMemo(() => (articles.length > 0 ? articles[0] : null), [articles]);
@@ -78,6 +109,42 @@ export function News() {
       </div>
 
       <div className="container mx-auto px-4 mt-12">
+        <div className="mb-6">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Tìm kiếm theo tiêu đề hoặc mô tả..."
+            className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+
+        <div className="mb-8 flex flex-wrap gap-2">
+          <button
+            onClick={() => setSelectedCategory("all")}
+            className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              selectedCategory === "all"
+                ? "bg-emerald-700 text-white"
+                : "bg-white text-stone-700 border border-stone-200 hover:bg-emerald-50"
+            }`}
+          >
+            Tất cả
+          </button>
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                selectedCategory === category
+                  ? "bg-emerald-700 text-white"
+                  : "bg-white text-stone-700 border border-stone-200 hover:bg-emerald-50"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+
         {isLoading ? (
           <div className="mb-10 rounded-2xl border border-stone-200 bg-white p-6 text-sm text-stone-500">
             Đang tải danh sách tin tức...
@@ -90,7 +157,6 @@ export function News() {
           </div>
         ) : null}
 
-        {/* Featured Article */}
         {!isLoading && !error && featuredArticle ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -103,6 +169,7 @@ export function News() {
             <div className="lg:w-2/5 p-8 lg:p-12 flex flex-col justify-center">
               <div className="flex items-center gap-4 text-sm text-stone-500 mb-4">
                 <span className="flex items-center gap-1"><Calendar size={16} /> {formatDate(featuredArticle.publishedAt) || formatDate(featuredArticle.createdAt)}</span>
+                {featuredArticle.category ? <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-700">{featuredArticle.category}</span> : null}
               </div>
               <h2 className="text-2xl lg:text-3xl font-bold text-stone-800 mb-6 group-hover:text-emerald-700 transition-colors">
                 {featuredArticle.title}
@@ -115,7 +182,6 @@ export function News() {
           </motion.div>
         ) : null}
 
-        {/* Regular Articles Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {regularArticles.map((article, i) => (
             <motion.div
@@ -132,11 +198,15 @@ export function News() {
               <div className="p-6 flex flex-col flex-grow">
                 <div className="flex items-center gap-4 text-xs text-stone-500 mb-3">
                   <span className="flex items-center gap-1"><Calendar size={14} /> {formatDate(article.publishedAt) || formatDate(article.createdAt)}</span>
+                  {article.category ? <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-700">{article.category}</span> : null}
                 </div>
                 <h3 className="text-xl font-bold text-stone-800 mb-3 group-hover:text-emerald-700 transition-colors line-clamp-2">
                   {article.title}
                 </h3>
                 <p className="text-stone-600 mb-6 line-clamp-3 text-sm flex-grow">{article.excerpt || "Đang cập nhật nội dung tóm tắt..."}</p>
+                {article.videoUrl ? (
+                  <video src={article.videoUrl} controls preload="metadata" className="mb-4 w-full rounded-lg border border-stone-200" />
+                ) : null}
                 <Link to={`/tin-tuc/${article.slug}`} className="text-emerald-700 font-semibold hover:text-emerald-900 transition-colors flex items-center gap-1 mt-auto">
                   Đọc tiếp <ArrowRight size={16} />
                 </Link>

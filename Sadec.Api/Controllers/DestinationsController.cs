@@ -28,7 +28,11 @@ public class DestinationsController(ApplicationDbContext dbContext) : Controller
         if (!string.IsNullOrWhiteSpace(q))
         {
             var keyword = q.Trim();
-            query = query.Where(x => x.TieuDe.Contains(keyword) || (x.MoTaNgan != null && x.MoTaNgan.Contains(keyword)));
+            query = query.Where(x =>
+                x.TieuDe.Contains(keyword) ||
+                x.DuongDan.Contains(keyword) ||
+                (x.MoTaNgan != null && x.MoTaNgan.Contains(keyword)) ||
+                (x.NoiDung != null && x.NoiDung.Contains(keyword)));
         }
 
         var total = await query.CountAsync(cancellationToken);
@@ -42,6 +46,8 @@ public class DestinationsController(ApplicationDbContext dbContext) : Controller
                 x.TieuDe,
                 x.DuongDan,
                 x.MoTaNgan,
+                x.AnhDaiDienUrl,
+                x.VideoUrl,
                 x.NoiDung,
                 x.ViDo,
                 x.KinhDo,
@@ -70,6 +76,8 @@ public class DestinationsController(ApplicationDbContext dbContext) : Controller
             entity.TieuDe,
             entity.DuongDan,
             entity.MoTaNgan,
+            entity.AnhDaiDienUrl,
+            entity.VideoUrl,
             entity.NoiDung,
             entity.ViDo,
             entity.KinhDo,
@@ -98,6 +106,8 @@ public class DestinationsController(ApplicationDbContext dbContext) : Controller
             entity.TieuDe,
             entity.DuongDan,
             entity.MoTaNgan,
+            entity.AnhDaiDienUrl,
+            entity.VideoUrl,
             entity.NoiDung,
             entity.ViDo,
             entity.KinhDo,
@@ -125,7 +135,11 @@ public class DestinationsController(ApplicationDbContext dbContext) : Controller
         if (!string.IsNullOrWhiteSpace(q))
         {
             var keyword = q.Trim();
-            query = query.Where(x => x.TieuDe.Contains(keyword) || (x.MoTaNgan != null && x.MoTaNgan.Contains(keyword)));
+            query = query.Where(x =>
+                x.TieuDe.Contains(keyword) ||
+                x.DuongDan.Contains(keyword) ||
+                (x.MoTaNgan != null && x.MoTaNgan.Contains(keyword)) ||
+                (x.NoiDung != null && x.NoiDung.Contains(keyword)));
         }
 
         if (status.HasValue)
@@ -144,6 +158,8 @@ public class DestinationsController(ApplicationDbContext dbContext) : Controller
                 x.TieuDe,
                 x.DuongDan,
                 x.MoTaNgan,
+                x.AnhDaiDienUrl,
+                x.VideoUrl,
                 x.NoiDung,
                 x.ViDo,
                 x.KinhDo,
@@ -171,6 +187,8 @@ public class DestinationsController(ApplicationDbContext dbContext) : Controller
             TieuDe = request.Title.Trim(),
             DuongDan = slug,
             MoTaNgan = request.Excerpt,
+            AnhDaiDienUrl = request.ImageUrl,
+            VideoUrl = request.VideoUrl,
             NoiDung = request.Content,
             ViDo = request.Latitude,
             KinhDo = request.Longitude,
@@ -185,6 +203,8 @@ public class DestinationsController(ApplicationDbContext dbContext) : Controller
             entity.TieuDe,
             entity.DuongDan,
             entity.MoTaNgan,
+            entity.AnhDaiDienUrl,
+            entity.VideoUrl,
             entity.NoiDung,
             entity.ViDo,
             entity.KinhDo,
@@ -209,6 +229,8 @@ public class DestinationsController(ApplicationDbContext dbContext) : Controller
         entity.TieuDe = request.Title.Trim();
         entity.DuongDan = slug;
         entity.MoTaNgan = request.Excerpt;
+        entity.AnhDaiDienUrl = request.ImageUrl;
+        entity.VideoUrl = request.VideoUrl;
         entity.NoiDung = request.Content;
         entity.ViDo = request.Latitude;
         entity.KinhDo = request.Longitude;
@@ -226,6 +248,14 @@ public class DestinationsController(ApplicationDbContext dbContext) : Controller
     {
         var entity = await dbContext.DiaDiems.FirstOrDefaultAsync(x => x.MaSo == maSo, cancellationToken);
         if (entity is null) return NotFound();
+
+        var relatedComments = await dbContext.BinhLuans
+            .Where(x => x.TargetId == maSo && (x.TargetType == "destination" || x.TargetType == "dia-danh" || x.TargetType == "diadiem"))
+            .ToListAsync(cancellationToken);
+        if (relatedComments.Count > 0)
+        {
+            dbContext.BinhLuans.RemoveRange(relatedComments);
+        }
 
         dbContext.DiaDiems.Remove(entity);
         await dbContext.SaveChangesAsync(cancellationToken);

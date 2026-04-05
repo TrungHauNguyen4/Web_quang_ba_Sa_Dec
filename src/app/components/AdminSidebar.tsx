@@ -26,7 +26,7 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ isMobile, isOpen, onClose }: AdminSidebarProps) {
   const location = useLocation();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const menuItems = [
     { name: "Trung tâm điều hành", icon: LayoutDashboard, path: "/admin" },
@@ -38,7 +38,7 @@ export function AdminSidebar({ isMobile, isOpen, onClose }: AdminSidebarProps) {
     { name: "Duyệt bình luận", icon: MessageSquare, path: "/admin/comments" },
     { name: "Tài khoản và vai trò", icon: Users, path: "/admin/users" },
     { name: "Cấu hình hệ thống", icon: Settings, path: "/admin/settings" },
-  ];
+  ].filter((item) => !(item.path === "/admin/users" && user?.role !== "Admin"));
 
   return (
     <AnimatePresence initial={false}>

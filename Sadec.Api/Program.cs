@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Sadec.Api.Data;
 using Sadec.Api.Entities;
 using Sadec.Api.Middlewares;
+using Sadec.Api.Services.Audit;
 using Sadec.Api.Services.Auth;
 using Sadec.Api.Services.Comments;
 
@@ -113,6 +114,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Auth service
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddHostedService<RefreshTokenCleanupService>();
 
 // Configure JWT authentication
 var jwtSection = builder.Configuration.GetSection("Jwt");
@@ -183,7 +187,9 @@ using (var scope = app.Services.CreateScope())
 {
     var userManager = scope.ServiceProvider.GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<ApplicationUser>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<Microsoft.AspNetCore.Identity.RoleManager<Microsoft.AspNetCore.Identity.IdentityRole<Guid>>>();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await DataSeeder.SeedIdentityAsync(userManager, roleManager);
+    await DataSeeder.SeedPublicServicesAsync(dbContext);
 }
 
 app.Run();

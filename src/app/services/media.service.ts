@@ -44,5 +44,11 @@ export const mediaService = {
   getPublic: async (params?: { page?: number; pageSize?: number; q?: string }) => {
     const response = await axios.get(`${API_BaseURL}/media`, { params });
     return response.data as PagedMediaResponse;
+  },
+
+  remove: async (id: string) => {
+    await axios.delete(`${API_BaseURL}/admin/media/${id}`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
   }
 };

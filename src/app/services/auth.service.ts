@@ -11,10 +11,22 @@ export interface User {
   refreshToken?: string;
 }
 
+export interface AuthLoginResponse {
+  token: string;
+  refreshToken?: string | null;
+  user: User;
+}
+
+export interface AuthRefreshResponse {
+  token: string;
+  refreshToken?: string | null;
+  user?: User;
+}
+
 export const authService = {
   login: async (credentials: any) => {
     const response = await axios.post(`${API_BaseURL}/auth/login`, credentials);
-    return response.data;
+    return response.data as AuthLoginResponse;
   },
 
   refreshToken: async (token: string, refreshToken: string) => {
@@ -22,12 +34,14 @@ export const authService = {
       token,
       refreshToken,
     });
-    return response.data;
+    return response.data as AuthRefreshResponse;
   },
 
   logout: async () => {
-    // Invalidate token or session on server if needed
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('tokenIssuedAt');
+    localStorage.removeItem('tokenExpiresAt');
     localStorage.removeItem('user');
   },
 };

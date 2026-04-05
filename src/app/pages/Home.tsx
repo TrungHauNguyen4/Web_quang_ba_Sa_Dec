@@ -1,21 +1,107 @@
-﻿import { Link } from "react-router";
+﻿import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router";
 import { Search, ChevronRight } from "lucide-react";
 import { motion } from "motion/react";
+import { newsService } from "../services/news.service";
+import { settingsService, SystemSettingsDto } from "../services/settings.service";
+
+type HomeNewsItem = {
+  id: string;
+  title: string;
+  slug: string;
+  imageUrl?: string | null;
+  excerpt?: string | null;
+};
+
+const FALLBACK_NEWS_IMAGE = "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=1000";
 
 export function Home() {
-  const headlines = [
-    "Thông báo công khai nội dung báo cáo đề xuất cấp giấy phép môi trường năm 2026",
-    "Kế hoạch giải ngân vốn đầu tư công quý II/2026",
-    "Thông báo lịch tiếp công dân định kỳ tháng 4/2026",
-  ];
+  const [news, setNews] = useState<HomeNewsItem[]>([]);
+  const [settings, setSettings] = useState<SystemSettingsDto | null>(null);
+  const [featuredIndex, setFeaturedIndex] = useState(0);
 
-  const rightColumnNews = [
-    "Kỷ cương, trách nhiệm, quyết liệt giải ngân vốn đầu tư công năm 2026",
-    "Nâng cao ý thức bảo vệ môi trường và nguồn lợi thủy sản địa phương",
-    "Đẩy nhanh tiến độ xây dựng tuyến đường nội phường phục vụ dân sinh",
-    "Phát huy ngành hàng chủ lực, quyết liệt thực hiện mục tiêu tăng trưởng",
-    "Chủ động ứng phó hạn mặn, bảo đảm nguồn nước phục vụ người dân",
-  ];
+  useEffect(() => {
+    let active = true;
+
+    const loadNews = async () => {
+      try {
+        const response = await newsService.getAll({ page: 1, pageSize: 8 });
+        const items: HomeNewsItem[] = Array.isArray(response?.items)
+          ? response.items
+          : Array.isArray(response)
+            ? response
+            : [];
+
+        if (!active) return;
+        setNews(items.filter((item) => Boolean(item.slug && item.title)));
+      } catch {
+        if (!active) return;
+        setNews([]);
+      }
+    };
+
+    void loadNews();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadSettings = async () => {
+      try {
+        const data = await settingsService.getPublic();
+        if (!active) return;
+        setSettings(data);
+      } catch {
+        if (!active) return;
+        setSettings(null);
+      }
+    };
+
+    void loadSettings();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const headlines = useMemo(
+    () => news.slice(0, 6).map((item) => item.title),
+    [news],
+  );
+
+  useEffect(() => {
+    if (news.length === 0) {
+      setFeaturedIndex(0);
+      return;
+    }
+
+    setFeaturedIndex((prev) => (prev >= news.length ? 0 : prev));
+  }, [news]);
+
+  useEffect(() => {
+    if (news.length <= 1) return;
+
+    const timer = window.setInterval(() => {
+      setFeaturedIndex((prev) => (prev + 1) % news.length);
+    }, 10000);
+
+    return () => window.clearInterval(timer);
+  }, [news]);
+
+  const handleNextFeatured = () => {
+    if (news.length <= 1) return;
+    setFeaturedIndex((prev) => (prev + 1) % news.length);
+  };
+
+  const featuredNews = news.length > 0 ? news[featuredIndex] : null;
+  const rightColumnNews = useMemo(
+    () => news.filter((_, idx) => idx !== featuredIndex).slice(0, 5),
+    [news, featuredIndex],
+  );
 
   return (
     <div className="w-full bg-[#efefef] pb-12">
@@ -36,7 +122,7 @@ export function Home() {
         <div className="relative mx-auto flex h-[280px] max-w-[1240px] items-center justify-center px-4">
           <div className="text-center text-white">
             <p className="text-2xl font-light tracking-[0.24em]">CỔNG THÔNG TIN ĐIỆN TỬ</p>
-            <h1 className="mt-2 text-5xl font-extrabold tracking-wide text-cyan-100 drop-shadow">PHƯỜNG SA ĐÉC</h1>
+            <h1 className="mt-2 text-5xl font-extrabold tracking-wide text-cyan-100 drop-shadow">{(settings?.siteName || "PHƯỜNG SA ĐÉC").toUpperCase()}</h1>
             <p className="mt-2 text-2xl tracking-[0.2em] text-cyan-50">www.sadec.gov.vn</p>
           </div>
 
@@ -62,7 +148,7 @@ export function Home() {
               animate={{ x: [0, -900] }}
               transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
             >
-              {[...headlines, ...headlines].map((item, idx) => (
+              {[...(headlines.length > 0 ? headlines : ["Đang cập nhật tin mới từ hệ thống..."]), ...(headlines.length > 0 ? headlines : ["Đang cập nhật tin mới từ hệ thống..."])].map((item, idx) => (
                 <span key={`${idx}-${item}`}>• {item}</span>
               ))}
             </motion.div>
@@ -74,27 +160,43 @@ export function Home() {
         <article className="border border-slate-300 bg-white">
           <div className="relative">
             <img
-              src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=1000"
+              src={featuredNews?.imageUrl || FALLBACK_NEWS_IMAGE}
               alt="Tin nổi bật"
               className="h-[360px] w-full object-cover"
             />
-            <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 p-1 text-slate-700">
+            <button
+              type="button"
+              onClick={handleNextFeatured}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 p-1 text-slate-700"
+              aria-label="Chuyển tin nổi bật tiếp theo"
+            >
               <ChevronRight size={20} />
             </button>
           </div>
           <div className="border-t border-slate-300 p-3">
-            <Link to="/tin-tuc" className="text-2xl md:text-3xl leading-tight font-bold text-slate-800 hover:text-sky-700">
-              Nâng cao ý thức về bảo vệ môi trường, nguồn lợi thủy sản
+            <Link
+              to={featuredNews?.slug ? `/tin-tuc/${featuredNews.slug}` : "/tin-tuc"}
+              className="text-2xl md:text-3xl leading-tight font-bold text-slate-800 hover:text-sky-700"
+            >
+              {featuredNews?.title || "Đang cập nhật tin nổi bật"}
             </Link>
           </div>
         </article>
 
         <aside className="border border-slate-300 bg-white">
           <ul className="divide-y divide-slate-300">
-            {rightColumnNews.map((item) => (
-              <li key={item} className="px-3 py-3">
-                <Link to="/tin-tuc" className="text-xl md:text-2xl leading-tight text-slate-800 hover:text-sky-700">
-                  {item}
+            {(rightColumnNews.length > 0 ? rightColumnNews : [{ id: "placeholder", title: "Đang cập nhật tin mới", slug: "" }]).map((item) => (
+              <li key={item.id} className="px-3 py-3">
+                <Link to={item.slug ? `/tin-tuc/${item.slug}` : "/tin-tuc"} className="group flex gap-3">
+                  <img
+                    src={item.imageUrl || FALLBACK_NEWS_IMAGE}
+                    alt={item.title}
+                    className="h-16 w-24 shrink-0 rounded object-cover"
+                  />
+                  <div className="min-w-0">
+                    <p className="line-clamp-2 text-lg leading-tight text-slate-800 group-hover:text-sky-700">{item.title}</p>
+                    <p className="mt-1 line-clamp-1 text-sm text-slate-500">{item.excerpt || "Tin tức cập nhật từ hệ thống"}</p>
+                  </div>
                 </Link>
               </li>
             ))}
@@ -114,16 +216,25 @@ export function Home() {
               <p><span className="font-bold">* Diện tích:</span> 8,4 km2</p>
               <p><span className="font-bold">* Dân số:</span> 36.000 người</p>
             </div>
+
+            <div className="mt-4 border-t border-slate-200 pt-3 space-y-2 text-sm text-slate-700">
+              <h3 className="text-base font-bold text-slate-900">Giới thiệu nhanh</h3>
+              <p><span className="font-semibold">Lịch sử:</span> Sa Đéc là đô thị có bề dày lịch sử, hình thành từ khu vực chợ - bến sông và làng nghề truyền thống.</p>
+              <p><span className="font-semibold">Vị trí:</span> Phường Sa Đéc nằm ở trung tâm thành phố Sa Đéc, thuận lợi kết nối giao thông nội vùng và liên vùng.</p>
+              <p><span className="font-semibold">Tự nhiên:</span> Khu vực mang đặc trưng sông nước Đồng bằng sông Cửu Long, khí hậu phù hợp sản xuất và dịch vụ.</p>
+              <p><span className="font-semibold">Dân cư:</span> Dân cư tập trung theo các khu đô thị, lao động dịch vụ - thương mại tăng theo định hướng phát triển.</p>
+              <p><span className="font-semibold">Hạ tầng:</span> Giao thông, điện nước, y tế, giáo dục và hạ tầng số đang được đầu tư đồng bộ.</p>
+            </div>
           </div>
         </aside>
       </section>
 
       <section className="mx-auto mt-4 max-w-[1240px] px-2">
         <div className="border border-slate-300 bg-white p-4 text-base md:text-lg leading-relaxed text-slate-700">
-          Trang chủ được điều chỉnh theo bố cục cổng thông tin điện tử cấp phường: thanh menu ngang, hero xanh có tìm kiếm,
-          thanh tin chạy, cụm tin nổi bật 3 cột và khối bản đồ hành chính.
+          {settings?.seoDescription || "Trang chủ được điều chỉnh theo bố cục cổng thông tin điện tử cấp phường: thanh menu ngang, hero xanh có tìm kiếm, thanh tin chạy, cụm tin nổi bật 3 cột và khối bản đồ hành chính."}
         </div>
       </section>
+
     </div>
   );
 }

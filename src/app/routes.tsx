@@ -21,8 +21,14 @@ const Home = lazy(async () => ({
 const Destinations = lazy(async () => ({
   default: (await import("./pages/Destinations")).Destinations,
 }));
+const DestinationDetail = lazy(async () => ({
+  default: (await import("./pages/DestinationDetail")).DestinationDetail,
+}));
 const Cuisine = lazy(async () => ({
   default: (await import("./pages/Cuisine")).Cuisine,
+}));
+const CuisineDetail = lazy(async () => ({
+  default: (await import("./pages/CuisineDetail")).CuisineDetail,
 }));
 const MapPage = lazy(async () => ({
   default: (await import("./pages/MapPage")).MapPage,
@@ -90,7 +96,9 @@ export const router = createBrowserRouter([
         children: [
           { index: true, Component: Home },
           { path: "dia-danh", Component: Destinations },
+          { path: "dia-danh/:slug", Component: DestinationDetail },
           { path: "am-thuc", Component: Cuisine },
+          { path: "am-thuc/:slug", Component: CuisineDetail },
           { path: "ban-do", Component: MapPage },
           { path: "tin-tuc", Component: News },
           { path: "tin-tuc/:slug", Component: NewsDetail },
@@ -118,7 +126,11 @@ export const router = createBrowserRouter([
               { path: "services", Component: AdminServices },
               { path: "media", Component: AdminMedia },
               { path: "comments", Component: AdminComments },
-              { path: "users", Component: AdminUsers },
+              {
+                path: "users",
+                element: <ProtectedRoute roles={["Admin"]} />,
+                children: [{ index: true, Component: AdminUsers }],
+              },
               { path: "settings", Component: AdminSettings },
             ],
           }

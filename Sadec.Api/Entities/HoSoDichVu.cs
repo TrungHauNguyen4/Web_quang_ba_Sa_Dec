@@ -18,6 +18,7 @@ public sealed class HoSoDichVu
     public string? DiaChi { get; set; }
 
     public string? GhiChu { get; set; }
+    public string? TepDinhKemJson { get; set; }
 
     public DateTime CapNhatLuc { get; set; } = DateTime.UtcNow;
 }

@@ -76,8 +76,23 @@
 - `PATCH /api/admin/comments/{commentId}/approve`
 - `PATCH /api/admin/comments/{commentId}/reject`
 
+**Users & service applications (implemented)**
+- `GET /api/admin/users?page=1&pageSize=20&q=...&role=Admin|Editor|Viewer`
+- `POST /api/admin/users`
+- `PATCH /api/admin/users/{id}/role`
+- `DELETE /api/admin/users/{id}`
+- `GET /api/services`
+- `POST /api/service-applications`
+- `GET /api/admin/service-applications?page=1&pageSize=20&q=...&status=pending|processing|completed|rejected`
+- `PATCH /api/admin/service-applications/{id}/status`
+
 **Run tests**
 - `dotnet test Sadec.Api.Tests/Sadec.Api.Tests.csproj`
+
+**CI / QA assets**
+- GitHub Actions workflow: `.github/workflows/ci.yml`
+- Postman collection: `postman/Sadec.Api.postman_collection.json`
+- Runbook (local + migration + smoke test): `docs/RUNBOOK.md`
 
 **Đơn giản hóa triển khai cho sinh viên**
 - Lưu file vào `wwwroot/uploads/` (không dùng cloud).  

@@ -3,10 +3,21 @@ import { useEffect, useMemo, useState } from "react";
 import { Play, Image as ImageIcon } from "lucide-react";
 import { isAxiosError } from "axios";
 import { MediaItemDto, mediaService } from "../services/media.service";
+import { destinationService } from "../services/destination.service";
+import { cuisineService } from "../services/cuisine.service";
+import { newsService } from "../services/news.service";
+
+type ContentImageItem = {
+  id: string;
+  title: string;
+  imageUrl: string;
+  source: string;
+};
 
 export function Gallery() {
   const [activeTab, setActiveTab] = useState("images");
   const [mediaItems, setMediaItems] = useState<MediaItemDto[]>([]);
+  const [contentImages, setContentImages] = useState<ContentImageItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,9 +28,59 @@ export function Gallery() {
       setLoading(true);
       setError(null);
       try {
-        const response = await mediaService.getPublic({ page: 1, pageSize: 100 });
+        const [mediaResult, newsResult, destinationResult, cuisineResult] = await Promise.allSettled([
+          mediaService.getPublic({ page: 1, pageSize: 100 }),
+          newsService.getAll({ page: 1, pageSize: 100 }),
+          destinationService.getAll({ page: 1, pageSize: 100 }),
+          cuisineService.getAll({ page: 1, pageSize: 100 }),
+        ]);
+
         if (!active) return;
-        setMediaItems(Array.isArray(response?.items) ? response.items : []);
+
+        if (mediaResult.status === "fulfilled") {
+          setMediaItems(Array.isArray(mediaResult.value?.items) ? mediaResult.value.items : []);
+        } else {
+          throw mediaResult.reason;
+        }
+
+        const extractedFromNews: ContentImageItem[] = newsResult.status === "fulfilled"
+          ? (Array.isArray(newsResult.value?.items) ? newsResult.value.items : [])
+              .filter((item: { id?: string; title?: string; imageUrl?: string | null; status?: number | string }) => {
+                const status = item.status;
+                const isPublished = status === undefined || status === 1 || status === "Published";
+                return Boolean(item.id && item.title && item.imageUrl && isPublished);
+              })
+              .map((item: { id: string; title: string; imageUrl: string }) => ({
+                id: `news-${item.id}`,
+                title: item.title,
+                imageUrl: item.imageUrl,
+                source: "Tin tức",
+              }))
+          : [];
+
+        const extractedFromDestinations: ContentImageItem[] = destinationResult.status === "fulfilled"
+          ? (Array.isArray(destinationResult.value?.items) ? destinationResult.value.items : [])
+              .filter((item: { id?: string; title?: string; imageUrl?: string | null }) => Boolean(item.id && item.title && item.imageUrl))
+              .map((item: { id: string; title: string; imageUrl: string }) => ({
+                id: `destination-${item.id}`,
+                title: item.title,
+                imageUrl: item.imageUrl,
+                source: "Địa danh",
+              }))
+          : [];
+
+        const extractedFromCuisine: ContentImageItem[] = cuisineResult.status === "fulfilled"
+          ? (Array.isArray(cuisineResult.value?.items) ? cuisineResult.value.items : [])
+              .filter((item: { id?: string; title?: string; imageUrl?: string | null }) => Boolean(item.id && item.title && item.imageUrl))
+              .map((item: { id: string; title: string; imageUrl: string }) => ({
+                id: `cuisine-${item.id}`,
+                title: item.title,
+                imageUrl: item.imageUrl,
+                source: "Ẩm thực",
+              }))
+          : [];
+
+        setContentImages([...extractedFromNews, ...extractedFromDestinations, ...extractedFromCuisine]);
       } catch (err: unknown) {
         if (!active) return;
         if (isAxiosError(err)) {
@@ -42,8 +103,22 @@ export function Gallery() {
   }, []);
 
   const images = useMemo(
-    () => mediaItems.filter((item) => item.contentType.startsWith("image/")),
-    [mediaItems]
+    () => {
+      const mediaImages = mediaItems.filter((item) => item.contentType.startsWith("image/"));
+      const usedUrls = new Set(mediaImages.map((item) => item.url));
+      const contentAsMedia = contentImages
+        .filter((item) => !usedUrls.has(item.imageUrl))
+        .map((item) => ({
+          id: item.id,
+          url: item.imageUrl,
+          fileName: `${item.source}: ${item.title}`,
+          sizeBytes: 0,
+          contentType: "image/content",
+          createdAt: new Date().toISOString(),
+        }));
+      return [...mediaImages, ...contentAsMedia];
+    },
+    [mediaItems, contentImages]
   );
 
   const videos = useMemo(

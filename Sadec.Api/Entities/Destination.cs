@@ -11,6 +11,7 @@ public class DiaDiem
     public string? NoiDung { get; set; }
 
     public string? AnhDaiDienUrl { get; set; }
+    public string? VideoUrl { get; set; }
 
     public int LuotXem { get; set; }
 
@@ -22,5 +23,4 @@ public class DiaDiem
     public DateTime TaoLuc { get; set; } = DateTime.UtcNow;
     public DateTime CapNhatLuc { get; set; } = DateTime.UtcNow;
 
-    public ICollection<DiaDiemDanhMuc> DiaDiemDanhMucs { get; set; } = new List<DiaDiemDanhMuc>();
 }

@@ -8,6 +8,8 @@ public sealed record DestinationDto(
     string Title,
     string Slug,
     string? Excerpt,
+    string? ImageUrl,
+    string? VideoUrl,
     string? Content,
     double? Latitude,
     double? Longitude,
@@ -26,6 +28,12 @@ public sealed class DestinationCreateDto
 
     [StringLength(500)]
     public string? Excerpt { get; set; }
+
+    [StringLength(1000)]
+    public string? ImageUrl { get; set; }
+
+    [StringLength(1000)]
+    public string? VideoUrl { get; set; }
 
     public string? Content { get; set; }
 
@@ -46,6 +54,12 @@ public sealed class DestinationUpdateDto
 
     [StringLength(500)]
     public string? Excerpt { get; set; }
+
+    [StringLength(1000)]
+    public string? ImageUrl { get; set; }
+
+    [StringLength(1000)]
+    public string? VideoUrl { get; set; }
 
     public string? Content { get; set; }
 

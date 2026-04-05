@@ -8,16 +8,16 @@ public class TinTuc
     public string DuongDan { get; set; } = string.Empty;
 
     public string? MoTaNgan { get; set; }
+    public string? DanhMuc { get; set; }
     public string? NoiDung { get; set; }
 
     public string? AnhDaiDienUrl { get; set; }
+    public string? VideoUrl { get; set; }
 
     public int LuotXem { get; set; }
 
     public Guid? TacGiaId { get; set; }
     public ApplicationUser? TacGia { get; set; }
-
-    public ICollection<TinTucDanhMuc> TinTucDanhMucs { get; set; } = new List<TinTucDanhMuc>();
 
     public ContentStatus TrangThai { get; set; } = ContentStatus.Draft;
 

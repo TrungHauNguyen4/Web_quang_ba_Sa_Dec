@@ -229,6 +229,53 @@ namespace Sadec.Api.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Sadec.Api.Entities.AuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("Metadata")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("TargetId")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("TargetType", "TargetId");
+
+                    b.ToTable("AuditLogs");
+                });
+
             modelBuilder.Entity("Sadec.Api.Entities.BinhLuan", b =>
                 {
                     b.Property<Guid>("MaSo")
@@ -305,36 +352,6 @@ namespace Sadec.Api.Migrations
                     b.ToTable("CaiDatHeThongs");
                 });
 
-            modelBuilder.Entity("Sadec.Api.Entities.DanhMuc", b =>
-                {
-                    b.Property<Guid>("MaSo")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CapNhatLuc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DuongDan")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.Property<DateTime>("TaoLuc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Ten")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.HasKey("MaSo");
-
-                    b.HasIndex("DuongDan")
-                        .IsUnique();
-
-                    b.ToTable("DanhMucs");
-                });
-
             modelBuilder.Entity("Sadec.Api.Entities.DiaDiem", b =>
                 {
                     b.Property<Guid>("MaSo")
@@ -384,27 +401,16 @@ namespace Sadec.Api.Migrations
                     b.Property<double?>("ViDo")
                         .HasColumnType("float");
 
+                    b.Property<string>("VideoUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
                     b.HasKey("MaSo");
 
                     b.HasIndex("DuongDan")
                         .IsUnique();
 
                     b.ToTable("DiaDiems");
-                });
-
-            modelBuilder.Entity("Sadec.Api.Entities.DiaDiemDanhMuc", b =>
-                {
-                    b.Property<Guid>("DiaDiemId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("DanhMucId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("DiaDiemId", "DanhMucId");
-
-                    b.HasIndex("DanhMucId");
-
-                    b.ToTable("DiaDiemDanhMucs");
                 });
 
             modelBuilder.Entity("Sadec.Api.Entities.HoSoDichVu", b =>
@@ -444,6 +450,10 @@ namespace Sadec.Api.Migrations
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("TepDinhKemJson")
+                        .HasMaxLength(8000)
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TrangThai")
                         .IsRequired()
@@ -499,6 +509,10 @@ namespace Sadec.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AnhBoSungJson")
+                        .HasMaxLength(8000)
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("AnhDaiDienUrl")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
@@ -510,6 +524,9 @@ namespace Sadec.Api.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<double?>("KinhDo")
+                        .HasColumnType("float");
 
                     b.Property<string>("MoTa")
                         .HasMaxLength(2000)
@@ -531,6 +548,13 @@ namespace Sadec.Api.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<double?>("ViDo")
+                        .HasColumnType("float");
+
+                    b.Property<string>("VideoUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.HasKey("MaSo");
 
@@ -565,6 +589,10 @@ namespace Sadec.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("RevokedAt");
+
                     b.HasIndex("Token")
                         .IsUnique();
 
@@ -581,6 +609,10 @@ namespace Sadec.Api.Migrations
 
                     b.Property<DateTime>("CapNhatLuc")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("CauHinhBieuMauJson")
+                        .HasMaxLength(8000)
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("DangHoatDong")
                         .HasColumnType("bit");
@@ -614,6 +646,10 @@ namespace Sadec.Api.Migrations
 
                     b.Property<DateTime>("CapNhatLuc")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("DanhMuc")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
 
                     b.Property<string>("DuongDan")
                         .IsRequired()
@@ -651,7 +687,13 @@ namespace Sadec.Api.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<string>("VideoUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
                     b.HasKey("MaSo");
+
+                    b.HasIndex("DanhMuc");
 
                     b.HasIndex("DuongDan")
                         .IsUnique();
@@ -659,21 +701,6 @@ namespace Sadec.Api.Migrations
                     b.HasIndex("TacGiaId");
 
                     b.ToTable("TinTucs");
-                });
-
-            modelBuilder.Entity("Sadec.Api.Entities.TinTucDanhMuc", b =>
-                {
-                    b.Property<Guid>("TinTucId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("DanhMucId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("TinTucId", "DanhMucId");
-
-                    b.HasIndex("DanhMucId");
-
-                    b.ToTable("TinTucDanhMucs");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -737,25 +764,6 @@ namespace Sadec.Api.Migrations
                     b.Navigation("NguoiDung");
                 });
 
-            modelBuilder.Entity("Sadec.Api.Entities.DiaDiemDanhMuc", b =>
-                {
-                    b.HasOne("Sadec.Api.Entities.DanhMuc", "DanhMuc")
-                        .WithMany("DiaDiemDanhMucs")
-                        .HasForeignKey("DanhMucId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Sadec.Api.Entities.DiaDiem", "DiaDiem")
-                        .WithMany("DiaDiemDanhMucs")
-                        .HasForeignKey("DiaDiemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DanhMuc");
-
-                    b.Navigation("DiaDiem");
-                });
-
             modelBuilder.Entity("Sadec.Api.Entities.MediaFile", b =>
                 {
                     b.HasOne("Sadec.Api.Entities.ApplicationUser", "NguoiTaiLen")
@@ -787,45 +795,9 @@ namespace Sadec.Api.Migrations
                     b.Navigation("TacGia");
                 });
 
-            modelBuilder.Entity("Sadec.Api.Entities.TinTucDanhMuc", b =>
-                {
-                    b.HasOne("Sadec.Api.Entities.DanhMuc", "DanhMuc")
-                        .WithMany("TinTucDanhMucs")
-                        .HasForeignKey("DanhMucId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Sadec.Api.Entities.TinTuc", "TinTuc")
-                        .WithMany("TinTucDanhMucs")
-                        .HasForeignKey("TinTucId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DanhMuc");
-
-                    b.Navigation("TinTuc");
-                });
-
             modelBuilder.Entity("Sadec.Api.Entities.ApplicationUser", b =>
                 {
                     b.Navigation("TinTucs");
-                });
-
-            modelBuilder.Entity("Sadec.Api.Entities.DanhMuc", b =>
-                {
-                    b.Navigation("DiaDiemDanhMucs");
-
-                    b.Navigation("TinTucDanhMucs");
-                });
-
-            modelBuilder.Entity("Sadec.Api.Entities.DiaDiem", b =>
-                {
-                    b.Navigation("DiaDiemDanhMucs");
-                });
-
-            modelBuilder.Entity("Sadec.Api.Entities.TinTuc", b =>
-                {
-                    b.Navigation("TinTucDanhMucs");
                 });
 #pragma warning restore 612, 618
         }

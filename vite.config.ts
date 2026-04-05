@@ -43,6 +43,10 @@ export default defineConfig({
             return 'motion';
           }
 
+          if (id.indexOf('leaflet') !== -1 || id.indexOf('react-leaflet') !== -1) {
+            return 'maps';
+          }
+
           return 'vendor';
         },
       },

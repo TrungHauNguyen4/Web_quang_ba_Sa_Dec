@@ -92,9 +92,9 @@ export function Login() {
           </form>
 
           <div className="mt-6 text-center">
-            <a href="#" className="text-sm text-slate-500 hover:text-blue-700 transition-colors">
+            <button type="button" className="text-sm text-slate-500 hover:text-blue-700 transition-colors">
               Quên mật khẩu?
-            </a>
+            </button>
           </div>
         </div>
         <div className="bg-slate-50 p-4 text-center border-t border-slate-100">
