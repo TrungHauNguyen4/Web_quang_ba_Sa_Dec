@@ -1,0 +1,141 @@
+﻿import { lazy } from "react";
+import { createBrowserRouter, Outlet } from "react-router";
+import { AuthProvider } from "./context/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+
+const Layout = lazy(async () => ({
+  default: (await import("./components/Layout")).Layout,
+}));
+
+const AdminLayout = lazy(async () => ({
+  default: (await import("./components/AdminLayout")).AdminLayout,
+}));
+
+const Login = lazy(async () => ({
+  default: (await import("./pages/auth/Login")).Login,
+}));
+
+const Home = lazy(async () => ({
+  default: (await import("./pages/Home")).Home,
+}));
+const Destinations = lazy(async () => ({
+  default: (await import("./pages/Destinations")).Destinations,
+}));
+const DestinationDetail = lazy(async () => ({
+  default: (await import("./pages/DestinationDetail")).DestinationDetail,
+}));
+const Cuisine = lazy(async () => ({
+  default: (await import("./pages/Cuisine")).Cuisine,
+}));
+const CuisineDetail = lazy(async () => ({
+  default: (await import("./pages/CuisineDetail")).CuisineDetail,
+}));
+const MapPage = lazy(async () => ({
+  default: (await import("./pages/MapPage")).MapPage,
+}));
+const News = lazy(async () => ({
+  default: (await import("./pages/News")).News,
+}));
+const NewsDetail = lazy(async () => ({
+  default: (await import("./pages/NewsDetail")).NewsDetail,
+}));
+const About = lazy(async () => ({
+  default: (await import("./pages/About")).About,
+}));
+const Gallery = lazy(async () => ({
+  default: (await import("./pages/Gallery")).Gallery,
+}));
+const Contact = lazy(async () => ({
+  default: (await import("./pages/Contact")).Contact,
+}));
+const Services = lazy(async () => ({
+  default: (await import("./pages/Services")).Services,
+}));
+
+const Dashboard = lazy(async () => ({
+  default: (await import("./pages/admin/Dashboard")).Dashboard,
+}));
+const AdminDestinations = lazy(async () => ({
+  default: (await import("./pages/admin/AdminDestinations")).AdminDestinations,
+}));
+const AdminCuisine = lazy(async () => ({
+  default: (await import("./pages/admin/AdminCuisine")).AdminCuisine,
+}));
+const AdminNews = lazy(async () => ({
+  default: (await import("./pages/admin/AdminNews")).AdminNews,
+}));
+const AdminServices = lazy(async () => ({
+  default: (await import("./pages/admin/AdminServices")).AdminServices,
+}));
+const AdminMedia = lazy(async () => ({
+  default: (await import("./pages/admin/AdminMedia")).AdminMedia,
+}));
+const AdminComments = lazy(async () => ({
+  default: (await import("./pages/admin/AdminComments")).AdminComments,
+}));
+const AdminUsers = lazy(async () => ({
+  default: (await import("./pages/admin/AdminUsers")).AdminUsers,
+}));
+const AdminSettings = lazy(async () => ({
+  default: (await import("./pages/admin/AdminSettings")).AdminSettings,
+}));
+
+const AppLayout = () => (
+  <AuthProvider>
+    <Outlet />
+  </AuthProvider>
+);
+
+export const router = createBrowserRouter([
+  {
+    element: <AppLayout />,
+    children: [
+      {
+        path: "/",
+        Component: Layout,
+        children: [
+          { index: true, Component: Home },
+          { path: "dia-danh", Component: Destinations },
+          { path: "dia-danh/:slug", Component: DestinationDetail },
+          { path: "am-thuc", Component: Cuisine },
+          { path: "am-thuc/:slug", Component: CuisineDetail },
+          { path: "ban-do", Component: MapPage },
+          { path: "tin-tuc", Component: News },
+          { path: "tin-tuc/:slug", Component: NewsDetail },
+          { path: "gioi-thieu", Component: About },
+          { path: "thu-vien", Component: Gallery },
+          { path: "lien-he", Component: Contact },
+          { path: "dich-vu", Component: Services },
+        ],
+      },
+      {
+        path: "/login",
+        Component: Login,
+      },
+      {
+        path: "/admin",
+        element: <ProtectedRoute roles={["Admin", "Editor"]} />,
+        children: [
+          {
+            Component: AdminLayout,
+            children: [
+              { index: true, Component: Dashboard },
+              { path: "destinations", Component: AdminDestinations },
+              { path: "cuisine", Component: AdminCuisine },
+              { path: "news", Component: AdminNews },
+              { path: "services", Component: AdminServices },
+              { path: "media", Component: AdminMedia },
+              { path: "comments", Component: AdminComments },
+              {
+                path: "users",
+                element: <ProtectedRoute roles={["Admin"]} />,
+                children: [{ index: true, Component: AdminUsers }],
+              },
+              { path: "settings", Component: AdminSettings },
+            ],
+          }
+        ],
+      },
+    ]
+  }
+]);

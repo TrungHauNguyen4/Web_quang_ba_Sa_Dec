@@ -1,0 +1,163 @@
+{
+  "info": {
+    "_postman_id": "8decb8c9-3df7-4623-aa10-a865b87cab86",
+    "name": "Sadec.Api",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin@sadec.local\",\n  \"password\": \"Admin@123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "Auth - Refresh",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"token\": \"{{token}}\",\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/refresh",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "refresh"]
+        }
+      }
+    },
+    {
+      "name": "News - Public List",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/news?page=1&pageSize=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "news"],
+          "query": [
+            { "key": "page", "value": "1" },
+            { "key": "pageSize", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "News - Admin Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Thong bao test\",\n  \"slug\": \"thong-bao-test\",\n  \"excerpt\": \"Noi dung tom tat\",\n  \"imageUrl\": null,\n  \"content\": \"Noi dung day du\",\n  \"status\": 1,\n  \"publishedAt\": \"2026-04-02T00:00:00Z\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/news",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "admin", "news"]
+        }
+      }
+    },
+    {
+      "name": "Destinations - Public List",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/destinations?page=1&pageSize=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "destinations"],
+          "query": [
+            { "key": "page", "value": "1" },
+            { "key": "pageSize", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Media - Admin Upload",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": ""
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/media/upload",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "admin", "media", "upload"]
+        }
+      }
+    },
+    {
+      "name": "Comments - Submit",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"targetType\": \"news\",\n  \"targetId\": \"{{targetId}}\",\n  \"userName\": \"Nguoi dung test\",\n  \"email\": \"test@example.com\",\n  \"content\": \"Binh luan test\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/comments",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "comments"]
+        }
+      }
+    },
+    {
+      "name": "Comments - Admin Approve",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/comments/{{commentId}}/approve",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "admin", "comments", "{{commentId}}", "approve"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5090" },
+    { "key": "token", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "targetId", "value": "" },
+    { "key": "commentId", "value": "" }
+  ]
+}
