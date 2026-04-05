@@ -14,6 +14,42 @@ type ContentImageItem = {
   source: string;
 };
 
+function isLikelyVideo(item: MediaItemDto): boolean {
+  const contentType = (item.contentType || "").toLowerCase();
+  const fileName = (item.fileName || "").toLowerCase();
+  const url = (item.url || "").toLowerCase();
+
+  if (contentType.startsWith("video/")) return true;
+  if (url.includes("youtube.com") || url.includes("youtu.be")) return true;
+  return /\.(mp4|webm|ogg|mov)(\?|$)/.test(url) || /\.(mp4|webm|ogg|mov)$/.test(fileName);
+}
+
+function toYoutubeEmbedUrl(url: string): string | null {
+  if (!url) return null;
+
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase();
+    if (host.includes("youtu.be")) {
+      const id = parsed.pathname.replace("/", "").trim();
+      return id ? `https://www.youtube.com/embed/${id}` : null;
+    }
+
+    if (host.includes("youtube.com")) {
+      const id = parsed.searchParams.get("v");
+      if (id) return `https://www.youtube.com/embed/${id}`;
+
+      const segments = parsed.pathname.split("/").filter(Boolean);
+      const embedId = segments[0] === "embed" ? segments[1] : null;
+      return embedId ? `https://www.youtube.com/embed/${embedId}` : null;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export function Gallery() {
   const [activeTab, setActiveTab] = useState("images");
   const [mediaItems, setMediaItems] = useState<MediaItemDto[]>([]);
@@ -122,7 +158,7 @@ export function Gallery() {
   );
 
   const videos = useMemo(
-    () => mediaItems.filter((item) => item.contentType.startsWith("video/")),
+    () => mediaItems.filter((item) => isLikelyVideo(item)),
     [mediaItems]
   );
 
@@ -197,19 +233,32 @@ export function Gallery() {
         {!loading && !error && activeTab === "videos" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {videos.map((video, i) => (
+              (() => {
+                const youtubeEmbedUrl = toYoutubeEmbedUrl(video.url);
+                return (
               <motion.div 
                 key={video.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="group cursor-pointer"
+                className="group"
               >
                 <div className="relative rounded-2xl overflow-hidden shadow-lg aspect-video mb-4 bg-stone-900">
-                  <video className="w-full h-full object-cover" controls preload="metadata" playsInline>
-                    <source src={video.url} type={video.contentType} />
-                    Trình duyệt không hỗ trợ phát video.
-                  </video>
-                  <div className="absolute inset-0 flex items-center justify-center">
+                  {youtubeEmbedUrl ? (
+                    <iframe
+                      src={youtubeEmbedUrl}
+                      title={video.fileName}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <video className="w-full h-full object-cover" controls preload="metadata" playsInline>
+                      <source src={video.url} type={video.contentType || "video/mp4"} />
+                      Trình duyệt không hỗ trợ phát video.
+                    </video>
+                  )}
+                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
                     <div className="w-16 h-16 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-teal-600 shadow-xl group-hover:scale-110 transition-transform">
                       <Play size={32} className="ml-1" />
                     </div>
@@ -217,6 +266,8 @@ export function Gallery() {
                 </div>
                 <h3 className="text-xl font-bold text-stone-800 group-hover:text-teal-600 transition-colors line-clamp-2">{video.fileName}</h3>
               </motion.div>
+                );
+              })()
             ))}
           </div>
         ) : null}

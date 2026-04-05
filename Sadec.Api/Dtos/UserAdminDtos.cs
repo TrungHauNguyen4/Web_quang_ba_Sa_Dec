@@ -26,11 +26,11 @@ public sealed class UserCreateDto
     public string Password { get; set; } = string.Empty;
 
     [Required, StringLength(30)]
-    public string Role { get; set; } = "Viewer";
+    public string Role { get; set; } = "Editor";
 }
 
 public sealed class UserUpdateRoleDto
 {
     [Required, StringLength(30)]
-    public string Role { get; set; } = "Viewer";
+    public string Role { get; set; } = "Editor";
 }

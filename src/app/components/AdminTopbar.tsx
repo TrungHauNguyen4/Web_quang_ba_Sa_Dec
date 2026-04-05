@@ -1,6 +1,7 @@
 ﻿import { Menu, Bell, Search, CalendarDays, Building2, CheckCheck } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
+import { useAuth } from "../context/AuthContext";
 
 interface AdminTopbarProps {
   isSidebarOpen: boolean;
@@ -28,6 +29,7 @@ export function AdminTopbar({ isSidebarOpen, onOpenSidebar }: AdminTopbarProps) 
     },
   ]);
   const notificationRef = useRef<HTMLDivElement | null>(null);
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -98,6 +100,24 @@ export function AdminTopbar({ isSidebarOpen, onOpenSidebar }: AdminTopbarProps) 
     setIsNotificationOpen(false);
     navigate(link);
   };
+
+  const roleLabel = useMemo(() => {
+    if (!user?.role) return "Chưa phân quyền";
+    if (user.role === "Admin") return "Quản trị";
+    if (user.role === "Editor") return "Biên tập";
+    return user.role;
+  }, [user?.role]);
+
+  const profileName = user?.displayName?.trim() || user?.username || user?.email || "Tài khoản";
+  const profileInitials = useMemo(() => {
+    const source = profileName.trim();
+    if (!source) return "TK";
+    const words = source.split(/\s+/).filter(Boolean);
+    if (words.length >= 2) {
+      return `${words[0][0] || ""}${words[words.length - 1][0] || ""}`.toUpperCase();
+    }
+    return source.slice(0, 2).toUpperCase();
+  }, [profileName]);
 
   return (
     <header className="h-20 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between shrink-0">
@@ -199,11 +219,11 @@ export function AdminTopbar({ isSidebarOpen, onOpenSidebar }: AdminTopbarProps) 
         
         <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
           <div className="text-right hidden sm:block">
-            <div className="text-sm font-semibold text-slate-800">Cán bộ quản trị</div>
-            <div className="text-xs text-slate-500">Vai trò: Admin</div>
+            <div className="text-sm font-semibold text-slate-800">{profileName}</div>
+            <div className="text-xs text-slate-500">Vai trò: {roleLabel}</div>
           </div>
           <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
-            QT
+            {profileInitials}
           </div>
         </div>
       </div>

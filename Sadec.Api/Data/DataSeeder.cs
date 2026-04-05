@@ -12,12 +12,33 @@ public static class DataSeeder
         RoleManager<IdentityRole<Guid>> roleManager,
         CancellationToken cancellationToken = default)
     {
-        var roles = new[] { "Admin", "Editor", "Viewer" };
+        var roles = new[] { "Admin", "Editor" };
         foreach (var role in roles)
         {
             if (!await roleManager.RoleExistsAsync(role))
             {
                 await roleManager.CreateAsync(new IdentityRole<Guid>(role));
+            }
+        }
+
+        // Cleanup legacy Viewer role if present from previous versions.
+        if (await roleManager.RoleExistsAsync("Viewer"))
+        {
+            var viewers = await userManager.GetUsersInRoleAsync("Viewer");
+            foreach (var viewer in viewers)
+            {
+                await userManager.RemoveFromRoleAsync(viewer, "Viewer");
+                var rolesOfUser = await userManager.GetRolesAsync(viewer);
+                if (rolesOfUser.Count == 0)
+                {
+                    await userManager.AddToRoleAsync(viewer, "Editor");
+                }
+            }
+
+            var viewerRole = await roleManager.FindByNameAsync("Viewer");
+            if (viewerRole is not null)
+            {
+                await roleManager.DeleteAsync(viewerRole);
             }
         }
 
@@ -45,7 +66,6 @@ public static class DataSeeder
 
         await CreateUserAsync("admin@sadec.local", "Admin", "Admin@123", "Admin");
         await CreateUserAsync("editor@sadec.local", "Editor", "Editor@123", "Editor");
-        await CreateUserAsync("viewer@sadec.local", "Viewer", "Viewer@123", "Viewer");
     }
 
     public static async Task SeedPublicServicesAsync(ApplicationDbContext dbContext, CancellationToken cancellationToken = default)

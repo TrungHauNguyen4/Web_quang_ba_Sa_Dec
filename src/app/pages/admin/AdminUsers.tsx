@@ -29,7 +29,7 @@ export function AdminUsers() {
     email: "",
     userName: "",
     password: "",
-    role: "Viewer",
+    role: "Editor",
   });
 
   const loadData = async () => {
@@ -63,7 +63,7 @@ export function AdminUsers() {
     if (role === "Editor") {
       return <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-bold flex items-center w-fit gap-1.5"><User size={12} /> Biên tập</span>;
     }
-    return <span className="px-2.5 py-1 bg-stone-100 text-stone-700 rounded-md text-xs font-bold flex items-center w-fit gap-1.5"><User size={12} /> Chỉ xem</span>;
+    return <span className="px-2.5 py-1 bg-stone-100 text-stone-700 rounded-md text-xs font-bold flex items-center w-fit gap-1.5"><User size={12} /> Chưa gán</span>;
   };
 
   const handleCreate = async () => {
@@ -75,7 +75,7 @@ export function AdminUsers() {
     try {
       await userService.create(form);
       setIsModalOpen(false);
-      setForm({ displayName: "", email: "", userName: "", password: "", role: "Viewer" });
+      setForm({ displayName: "", email: "", userName: "", password: "", role: "Editor" });
       await loadData();
     } catch {
       setError("Tạo tài khoản thất bại.");
@@ -117,7 +117,7 @@ export function AdminUsers() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-stone-800">Người dùng và phân quyền</h1>
-          <p className="text-sm text-stone-500">Quản lý tài khoản theo vai trò Quản trị/Biên tập/Chỉ xem</p>
+          <p className="text-sm text-stone-500">Quản lý tài khoản theo vai trò Quản trị/Biên tập</p>
         </div>
         <button onClick={() => setIsModalOpen(true)} className="bg-stone-800 hover:bg-stone-900 text-white px-4 py-2.5 rounded-xl font-medium flex items-center gap-2">
           <Plus size={18} /> Thêm người dùng
@@ -154,7 +154,6 @@ export function AdminUsers() {
               <option value="all">Tất cả vai trò</option>
               <option value="Admin">Quản trị</option>
               <option value="Editor">Biên tập</option>
-              <option value="Viewer">Chỉ xem</option>
             </select>
             <button
               onClick={() => {
@@ -197,9 +196,9 @@ export function AdminUsers() {
                           onChange={(e) => void handleRoleChange(user, e.target.value)}
                           className="border border-stone-200 rounded px-2 py-1 text-xs"
                         >
+                          {user.role !== "Admin" && user.role !== "Editor" ? <option value={user.role}>Chưa gán</option> : null}
                           <option value="Admin">Quản trị</option>
                           <option value="Editor">Biên tập</option>
-                          <option value="Viewer">Chỉ xem</option>
                         </select>
                       </div>
                     </td>
@@ -246,7 +245,6 @@ export function AdminUsers() {
               <input value={form.userName} onChange={(e) => setForm({ ...form, userName: e.target.value })} placeholder="UserName" className="w-full px-4 py-2.5 rounded-lg border border-stone-200" />
               <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Mật khẩu" className="w-full px-4 py-2.5 rounded-lg border border-stone-200" />
               <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className="w-full px-4 py-2.5 rounded-lg border border-stone-200">
-                <option value="Viewer">Chỉ xem</option>
                 <option value="Editor">Biên tập</option>
                 <option value="Admin">Quản trị</option>
               </select>

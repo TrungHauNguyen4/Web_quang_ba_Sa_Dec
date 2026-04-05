@@ -16,6 +16,12 @@ public sealed class AdminUsersController(
     RoleManager<IdentityRole<Guid>> roleManager,
     IAuditLogService auditLogService) : ControllerBase
 {
+    private static readonly HashSet<string> AllowedRoles = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Admin",
+        "Editor"
+    };
+
     [HttpGet]
     public async Task<ActionResult<PagedResultDto<UserAdminDto>>> GetAll(
         [FromQuery] int page = 1,
@@ -40,7 +46,7 @@ public sealed class AdminUsersController(
         foreach (var user in users)
         {
             var roles = await userManager.GetRolesAsync(user);
-            var currentRole = roles.FirstOrDefault() ?? "Viewer";
+            var currentRole = roles.FirstOrDefault() ?? "Unassigned";
 
             if (!string.IsNullOrWhiteSpace(role) && !currentRole.Equals(role, StringComparison.OrdinalIgnoreCase))
             {
@@ -61,6 +67,11 @@ public sealed class AdminUsersController(
     public async Task<ActionResult<UserAdminDto>> Create([FromBody] UserCreateDto request)
     {
         var normalizedRole = request.Role.Trim();
+        if (!AllowedRoles.Contains(normalizedRole))
+        {
+            return BadRequest(new { message = "Chi ho tro role Admin hoac Editor." });
+        }
+
         if (!await roleManager.RoleExistsAsync(normalizedRole))
         {
             return BadRequest(new { message = "Role khong hop le." });
@@ -113,6 +124,11 @@ public sealed class AdminUsersController(
         if (user is null) return NotFound();
 
         var normalizedRole = request.Role.Trim();
+        if (!AllowedRoles.Contains(normalizedRole))
+        {
+            return BadRequest(new { message = "Chi ho tro role Admin hoac Editor." });
+        }
+
         if (!await roleManager.RoleExistsAsync(normalizedRole))
         {
             return BadRequest(new { message = "Role khong hop le." });
