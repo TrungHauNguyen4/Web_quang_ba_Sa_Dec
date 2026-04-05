@@ -14,6 +14,7 @@ type HomeNewsItem = {
 };
 
 const FALLBACK_NEWS_IMAGE = "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=1000";
+const FALLBACK_MAP_IMAGE = "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/BlankMap-Vietnam-provinces.svg/640px-BlankMap-Vietnam-provinces.svg.png";
 
 export function Home() {
   const [news, setNews] = useState<HomeNewsItem[]>([]);
@@ -207,7 +208,7 @@ export function Home() {
           <div className="bg-[#1f6dc0] px-3 py-2 text-center text-xl md:text-2xl font-bold text-white">BẢN ĐỒ HÀNH CHÍNH</div>
           <div className="p-3">
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/BlankMap-Vietnam-provinces.svg/640px-BlankMap-Vietnam-provinces.svg.png"
+              src={settings?.mapImageUrl || FALLBACK_MAP_IMAGE}
               alt="Bản đồ"
               className="w-full border border-slate-300"
             />

@@ -7,6 +7,7 @@ export interface SystemSettingsDto {
   slogan: string;
   seoDescription: string;
   logoUrl?: string | null;
+  mapImageUrl?: string | null;
   contactPhone: string;
   contactEmail: string;
   contactAddress: string;
@@ -20,6 +21,7 @@ export interface UpdateSystemSettingsDto {
   slogan: string;
   seoDescription: string;
   logoUrl?: string | null;
+  mapImageUrl?: string | null;
   contactPhone: string;
   contactEmail: string;
   contactAddress: string;

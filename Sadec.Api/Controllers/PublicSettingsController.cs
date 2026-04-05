@@ -15,6 +15,7 @@ public sealed class PublicSettingsController(ApplicationDbContext dbContext) : C
     private const string SloganKey = "site.slogan";
     private const string SeoDescriptionKey = "site.seoDescription";
     private const string LogoUrlKey = "site.logoUrl";
+    private const string MapImageUrlKey = "site.mapImageUrl";
     private const string ContactPhoneKey = "contact.phone";
     private const string ContactEmailKey = "contact.email";
     private const string ContactAddressKey = "contact.address";
@@ -35,6 +36,7 @@ public sealed class PublicSettingsController(ApplicationDbContext dbContext) : C
             Slogan: Read(settings, SloganKey, "Minh bạch - Hiệu quả - Phục vụ"),
             SeoDescription: Read(settings, SeoDescriptionKey, "Cổng thông tin điện tử cấp phường, cung cấp dịch vụ công trực tuyến, thông báo điều hành và tiếp nhận phản ánh kiến nghị."),
             LogoUrl: ReadOptional(settings, LogoUrlKey),
+            MapImageUrl: ReadOptional(settings, MapImageUrlKey),
             ContactPhone: Read(settings, ContactPhoneKey, "0277 3861 xxx"),
             ContactEmail: Read(settings, ContactEmailKey, "contact@sadec.gov.vn"),
             ContactAddress: Read(settings, ContactAddressKey, "UBND TP Sa Đéc, Phường 1, TP Sa Đéc, Phường Sa Đéc"),

@@ -13,6 +13,7 @@ export function AdminSettings() {
     slogan: "",
     seoDescription: "",
     logoUrl: "",
+    mapImageUrl: "",
     contactPhone: "",
     contactEmail: "",
     contactAddress: "",
@@ -48,6 +49,7 @@ export function AdminSettings() {
           slogan: data.slogan || "",
           seoDescription: data.seoDescription || "",
           logoUrl: data.logoUrl || "",
+          mapImageUrl: data.mapImageUrl || "",
           contactPhone: data.contactPhone || "",
           contactEmail: data.contactEmail || "",
           contactAddress: data.contactAddress || "",
@@ -81,6 +83,7 @@ export function AdminSettings() {
         slogan: form.slogan.trim(),
         seoDescription: form.seoDescription.trim(),
         logoUrl: form.logoUrl.trim() || null,
+        mapImageUrl: form.mapImageUrl.trim() || null,
         contactPhone: form.contactPhone.trim(),
         contactEmail: form.contactEmail.trim(),
         contactAddress: form.contactAddress.trim(),
@@ -162,6 +165,31 @@ export function AdminSettings() {
                   />
                 </div>
                 <p className="text-xs text-stone-500">PNG, SVG hoặc WEBP. Kích thước đề xuất 200x50px.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-stone-700">Ảnh bản đồ hành chính</label>
+            <div className="flex items-center gap-6">
+              <div className="w-24 h-24 bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
+                {form.mapImageUrl ? (
+                  <img src={form.mapImageUrl} alt="Ảnh bản đồ hành chính" className="h-full w-full object-cover" />
+                ) : (
+                  <ImageIcon size={32} className="text-slate-400" />
+                )}
+              </div>
+              <div className="w-full">
+                <div className="flex gap-2 mb-2">
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-600"
+                    placeholder="URL ảnh bản đồ hành chính"
+                    value={form.mapImageUrl}
+                    onChange={(e) => setForm({ ...form, mapImageUrl: e.target.value })}
+                  />
+                </div>
+                <p className="text-xs text-stone-500">Dùng ảnh rõ nét tỉ lệ ngang để hiển thị tốt trong khối Bản đồ hành chính ở trang chủ.</p>
               </div>
             </div>
           </div>
