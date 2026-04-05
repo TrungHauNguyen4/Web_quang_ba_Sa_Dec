@@ -157,14 +157,12 @@ Directory.CreateDirectory(webRootPath);
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
-    app.MapOpenApi();    app.UseSwaggerUI(c =>
+    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sadec API v1");
     });
-
-    // Swagger JSON & UI at /swagger
-    app.UseSwagger();
-    app.UseSwaggerUI();
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
