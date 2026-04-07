@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
+import fs from 'fs'
+import path from 'path'
 
 export default defineConfig({
   plugins: [
@@ -8,6 +10,17 @@ export default defineConfig({
     // Tailwind is not being actively used – do not remove them
     react(),
     tailwindcss(),
+    {
+      name: 'copy-static-config',
+      writeBundle() {
+        const source = path.join(__dirname, 'staticwebapp.config.json')
+        const dest = path.join(__dirname, 'dist', 'staticwebapp.config.json')
+        if (fs.existsSync(source)) {
+          fs.copyFileSync(source, dest)
+          console.log('✓ staticwebapp.config.json copied to dist/')
+        }
+      }
+    }
   ],
   resolve: {
     alias: {

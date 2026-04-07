@@ -1,13 +1,6 @@
-{
-  "routes": [
-    {
-      "route": "/*",
-      "serve": "/index.html",
-      "statusCode": 200
-    },
-    {
-      "route": "/api/*",
-      "statusCode": 400
-    }
-  ]
+﻿{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/assets/*", "/api/*"]
+  }
 }

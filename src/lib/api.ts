@@ -1,13 +1,14 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_BASE_URL = 
+  import.meta.env.VITE_API_URL || 
+  (window.location.hostname.includes('azurestaticapps.net') 
+    ? 'https://sadec-backend.azurewebsites.net/api' 
+    : 'http://localhost:5000/api');
 const AUTH_PATHS = ["/auth/login", "/auth/refresh", "/auth/refresh-token"];
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 type RetryableRequestConfig = InternalAxiosRequestConfig & { _retry?: boolean };

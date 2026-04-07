@@ -13,6 +13,7 @@ export function AdminSettings() {
     slogan: "",
     seoDescription: "",
     logoUrl: "",
+    administrativeMapImageUrl: "",
     contactPhone: "",
     contactEmail: "",
     contactAddress: "",
@@ -48,6 +49,7 @@ export function AdminSettings() {
           slogan: data.slogan || "",
           seoDescription: data.seoDescription || "",
           logoUrl: data.logoUrl || "",
+          administrativeMapImageUrl: data.administrativeMapImageUrl || "",
           contactPhone: data.contactPhone || "",
           contactEmail: data.contactEmail || "",
           contactAddress: data.contactAddress || "",
@@ -81,6 +83,7 @@ export function AdminSettings() {
         slogan: form.slogan.trim(),
         seoDescription: form.seoDescription.trim(),
         logoUrl: form.logoUrl.trim() || null,
+        administrativeMapImageUrl: form.administrativeMapImageUrl.trim() || null,
         contactPhone: form.contactPhone.trim(),
         contactEmail: form.contactEmail.trim(),
         contactAddress: form.contactAddress.trim(),
@@ -116,8 +119,9 @@ export function AdminSettings() {
         <div className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-stone-700">Tên website</label>
+              <label htmlFor="siteName" className="text-sm font-semibold text-stone-700">Tên website</label>
               <input
+                id="siteName"
                 type="text"
                 className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-600"
                 value={form.siteName}
@@ -125,8 +129,9 @@ export function AdminSettings() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-stone-700">Khẩu hiệu</label>
+              <label htmlFor="slogan" className="text-sm font-semibold text-stone-700">Khẩu hiệu</label>
               <input
+                id="slogan"
                 type="text"
                 className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-600"
                 value={form.slogan}
@@ -136,8 +141,9 @@ export function AdminSettings() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-stone-700">Mô tả SEO</label>
+            <label htmlFor="seoDescription" className="text-sm font-semibold text-stone-700">Mô tả SEO</label>
             <textarea
+              id="seoDescription"
               rows={3}
               className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-600 resize-none"
               value={form.seoDescription}
@@ -146,7 +152,7 @@ export function AdminSettings() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-stone-700">Logo website</label>
+            <label htmlFor="logoUrl" className="text-sm font-semibold text-stone-700">Logo website</label>
             <div className="flex items-center gap-6">
               <div className="w-24 h-24 bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-center shrink-0">
                 <ImageIcon size={32} className="text-slate-400" />
@@ -154,6 +160,7 @@ export function AdminSettings() {
               <div>
                 <div className="flex gap-2 mb-2">
                   <input
+                    id="logoUrl"
                     type="text"
                     className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-600"
                     placeholder="URL logo"
@@ -162,6 +169,34 @@ export function AdminSettings() {
                   />
                 </div>
                 <p className="text-xs text-stone-500">PNG, SVG hoặc WEBP. Kích thước đề xuất 200x50px.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="administrativeMapImageUrl" className="text-sm font-semibold text-stone-700">Ảnh bản đồ hành chính</label>
+            <div className="flex items-center gap-6">
+              <div className="w-24 h-24 bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
+                {form.administrativeMapImageUrl ? (
+                  <img
+                    src={form.administrativeMapImageUrl}
+                    alt="Bản đồ hành chính"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <ImageIcon size={32} className="text-slate-400" />
+                )}
+              </div>
+              <div className="flex-1">
+                <input
+                  id="administrativeMapImageUrl"
+                  type="text"
+                  className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-600"
+                  placeholder="URL ảnh bản đồ"
+                  value={form.administrativeMapImageUrl}
+                  onChange={(e) => setForm({ ...form, administrativeMapImageUrl: e.target.value })}
+                />
+                <p className="text-xs text-stone-500 mt-2">Dán URL ảnh (từ thư viện tệp) để hiển thị ở trang chủ.</p>
               </div>
             </div>
           </div>
@@ -177,8 +212,9 @@ export function AdminSettings() {
         <div className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-stone-700 flex items-center gap-2"><Phone size={14} /> Số điện thoại</label>
+              <label htmlFor="contactPhone" className="text-sm font-semibold text-stone-700 flex items-center gap-2"><Phone size={14} /> Số điện thoại</label>
               <input
+                id="contactPhone"
                 type="text"
                 className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-600"
                 value={form.contactPhone}
@@ -186,8 +222,9 @@ export function AdminSettings() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-stone-700 flex items-center gap-2"><Mail size={14} /> Email</label>
+              <label htmlFor="contactEmail" className="text-sm font-semibold text-stone-700 flex items-center gap-2"><Mail size={14} /> Email</label>
               <input
+                id="contactEmail"
                 type="email"
                 className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-600"
                 value={form.contactEmail}
@@ -196,8 +233,9 @@ export function AdminSettings() {
             </div>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-stone-700 flex items-center gap-2"><MapPin size={14} /> Địa chỉ</label>
+            <label htmlFor="contactAddress" className="text-sm font-semibold text-stone-700 flex items-center gap-2"><MapPin size={14} /> Địa chỉ</label>
             <input
+              id="contactAddress"
               type="text"
               className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-600"
               value={form.contactAddress}
@@ -219,6 +257,7 @@ export function AdminSettings() {
               <Facebook size={20} />
             </div>
             <input
+              id="facebookUrl"
               type="text"
               className="flex-1 px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-600"
               placeholder="Đường dẫn Facebook"
@@ -231,6 +270,7 @@ export function AdminSettings() {
               <Instagram size={20} />
             </div>
             <input
+              id="instagramUrl"
               type="text"
               className="flex-1 px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-600"
               placeholder="Đường dẫn Instagram"
@@ -243,6 +283,7 @@ export function AdminSettings() {
               <Youtube size={20} />
             </div>
             <input
+              id="youtubeUrl"
               type="text"
               className="flex-1 px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-600"
               placeholder="Đường dẫn YouTube"

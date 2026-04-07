@@ -15,6 +15,10 @@ const Login = lazy(async () => ({
   default: (await import("./pages/auth/Login")).Login,
 }));
 
+const ResetPassword = lazy(async () => ({
+  default: (await import("./pages/auth/ResetPassword")).ResetPassword,
+}));
+
 const Home = lazy(async () => ({
   default: (await import("./pages/Home")).Home,
 }));
@@ -111,6 +115,10 @@ export const router = createBrowserRouter([
       {
         path: "/login",
         Component: Login,
+      },
+      {
+        path: "/reset-password",
+        Component: ResetPassword,
       },
       {
         path: "/admin",

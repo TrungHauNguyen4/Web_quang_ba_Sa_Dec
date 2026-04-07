@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Plus, Search, Shield, User, X } from "lucide-react";
+import type { AxiosError } from "axios";
 import { userService } from "../../services/user.service";
 import { PaginationControls } from "../../components/ui/PaginationControls";
 
@@ -67,18 +68,28 @@ export function AdminUsers() {
   };
 
   const handleCreate = async () => {
-    if (!form.displayName || !form.email || !form.userName || !form.password) {
+    const payload = {
+      displayName: form.displayName.trim(),
+      email: form.email.trim(),
+      userName: form.userName.trim(),
+      password: form.password,
+      role: form.role.trim(),
+    };
+
+    if (!payload.displayName || !payload.email || !payload.userName || !payload.password) {
       setError("Vui lòng nhập đầy đủ thông tin.");
       return;
     }
 
     try {
-      await userService.create(form);
+      await userService.create(payload);
       setIsModalOpen(false);
       setForm({ displayName: "", email: "", userName: "", password: "", role: "Editor" });
       await loadData();
-    } catch {
-      setError("Tạo tài khoản thất bại.");
+    } catch (err) {
+      const axiosError = err as AxiosError<{ message?: string }>;
+      const message = axiosError?.response?.data?.message;
+      setError(message || "Tạo tài khoản thất bại.");
     }
   };
 
@@ -119,7 +130,13 @@ export function AdminUsers() {
           <h1 className="text-2xl font-bold text-stone-800">Người dùng và phân quyền</h1>
           <p className="text-sm text-stone-500">Quản lý tài khoản theo vai trò Quản trị/Biên tập</p>
         </div>
-        <button onClick={() => setIsModalOpen(true)} className="bg-stone-800 hover:bg-stone-900 text-white px-4 py-2.5 rounded-xl font-medium flex items-center gap-2">
+        <button
+          onClick={() => {
+            setError(null);
+            setIsModalOpen(true);
+          }}
+          className="bg-stone-800 hover:bg-stone-900 text-white px-4 py-2.5 rounded-xl font-medium flex items-center gap-2"
+        >
           <Plus size={18} /> Thêm người dùng
         </button>
       </div>
@@ -149,6 +166,8 @@ export function AdminUsers() {
                 setRoleFilter(e.target.value);
                 setPage(1);
               }}
+              aria-label="Lọc theo vai trò"
+              title="Lọc theo vai trò"
               className="border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-600 bg-white focus:outline-none w-full sm:w-auto"
             >
               <option value="all">Tất cả vai trò</option>
@@ -194,6 +213,8 @@ export function AdminUsers() {
                         <select
                           value={user.role}
                           onChange={(e) => void handleRoleChange(user, e.target.value)}
+                          aria-label="Chọn vai trò"
+                          title="Chọn vai trò"
                           className="border border-stone-200 rounded px-2 py-1 text-xs"
                         >
                           {user.role !== "Admin" && user.role !== "Editor" ? <option value={user.role}>Chưa gán</option> : null}
@@ -235,7 +256,12 @@ export function AdminUsers() {
           <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md">
             <div className="p-6 border-b border-stone-100 flex justify-between items-center">
               <h2 className="text-xl font-bold text-stone-800">Thêm người dùng mới</h2>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 text-stone-400 hover:bg-stone-100 rounded-full">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-2 text-stone-400 hover:bg-stone-100 rounded-full"
+                aria-label="Đóng"
+                title="Đóng"
+              >
                 <X size={20} />
               </button>
             </div>
@@ -244,7 +270,13 @@ export function AdminUsers() {
               <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Email" className="w-full px-4 py-2.5 rounded-lg border border-stone-200" />
               <input value={form.userName} onChange={(e) => setForm({ ...form, userName: e.target.value })} placeholder="UserName" className="w-full px-4 py-2.5 rounded-lg border border-stone-200" />
               <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Mật khẩu" className="w-full px-4 py-2.5 rounded-lg border border-stone-200" />
-              <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className="w-full px-4 py-2.5 rounded-lg border border-stone-200">
+              <select
+                value={form.role}
+                onChange={(e) => setForm({ ...form, role: e.target.value })}
+                aria-label="Vai trò"
+                title="Vai trò"
+                className="w-full px-4 py-2.5 rounded-lg border border-stone-200"
+              >
                 <option value="Editor">Biên tập</option>
                 <option value="Admin">Quản trị</option>
               </select>

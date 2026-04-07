@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_BaseURL = import.meta.env.VITE_API_URL || 'http://localhost:5090/api';
+import { api } from "@/lib/api";
 
 export interface User {
   id: string;
@@ -26,16 +24,26 @@ export interface AuthRefreshResponse {
 
 export const authService = {
   login: async (credentials: any) => {
-    const response = await axios.post(`${API_BaseURL}/auth/login`, credentials);
+    const response = await api.post(`/auth/login`, credentials);
     return response.data as AuthLoginResponse;
   },
 
   refreshToken: async (token: string, refreshToken: string) => {
-    const response = await axios.post(`${API_BaseURL}/auth/refresh-token`, {
+    const response = await api.post(`/auth/refresh-token`, {
       token,
       refreshToken,
     });
     return response.data as AuthRefreshResponse;
+  },
+
+  forgotPassword: async (usernameOrEmail: string) => {
+    const response = await api.post(`/auth/forgot-password`, { usernameOrEmail });
+    return response.data as { message?: string };
+  },
+
+  resetPassword: async (payload: { email: string; token: string; newPassword: string }) => {
+    const response = await api.post(`/auth/reset-password`, payload);
+    return response.data as { message?: string };
   },
 
   logout: async () => {

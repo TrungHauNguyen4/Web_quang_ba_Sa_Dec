@@ -57,6 +57,10 @@ Sadec.Api/appsettings.Development.json
 **/bin/
 **/obj/
 
+# Local publish artifacts
+publish_backend/
+publish.zip
+
 # Temp/system files
 Thumbs.db
 *.tmp

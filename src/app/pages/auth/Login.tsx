@@ -1,6 +1,8 @@
 ﻿import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, Loader2, ShieldCheck, X } from "lucide-react";
+import type { AxiosError } from "axios";
+import { authService } from "../../services/auth.service";
 
 export function Login() {
   const { login } = useAuth();
@@ -9,6 +11,11 @@ export function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotValue, setForgotValue] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotMessage, setForgotMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,7 +99,15 @@ export function Login() {
           </form>
 
           <div className="mt-6 text-center">
-            <button type="button" className="text-sm text-slate-500 hover:text-blue-700 transition-colors">
+            <button
+              type="button"
+              onClick={() => {
+                setForgotMessage(null);
+                setForgotValue(username);
+                setForgotOpen(true);
+              }}
+              className="text-sm text-slate-500 hover:text-blue-700 transition-colors"
+            >
               Quên mật khẩu?
             </button>
           </div>
@@ -101,6 +116,81 @@ export function Login() {
           <p className="text-xs text-slate-400">© 2026 Cổng thông tin điện tử Phường Sa Đéc. Bản quyền thuộc UBND Phường Sa Đéc.</p>
         </div>
       </div>
+
+      {forgotOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40" onClick={() => setForgotOpen(false)} />
+          <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md border border-slate-200 overflow-hidden">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+              <h2 className="text-lg font-bold text-slate-900">Quên mật khẩu</h2>
+              <button
+                type="button"
+                onClick={() => setForgotOpen(false)}
+                className="p-2 text-slate-400 hover:bg-slate-100 rounded-full"
+                aria-label="Đóng"
+                title="Đóng"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-slate-500">Nhập tên đăng nhập hoặc email để nhận hướng dẫn đặt lại mật khẩu.</p>
+
+              {forgotMessage ? (
+                <div className="p-3 rounded-lg bg-green-50 text-green-700 text-sm border border-green-100">{forgotMessage}</div>
+              ) : null}
+
+              <div className="space-y-2">
+                <label htmlFor="forgotValue" className="text-sm font-semibold text-slate-700">
+                  Tên đăng nhập / Email
+                </label>
+                <input
+                  id="forgotValue"
+                  type="text"
+                  value={forgotValue}
+                  onChange={(e) => setForgotValue(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all bg-slate-50 focus:bg-white"
+                  placeholder="admin@sadec.gov.vn"
+                />
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50">
+              <button
+                type="button"
+                onClick={() => setForgotOpen(false)}
+                className="px-6 py-2.5 rounded-lg font-medium text-slate-600 hover:bg-slate-200"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                disabled={forgotLoading}
+                onClick={async () => {
+                  setForgotLoading(true);
+                  setForgotMessage(null);
+                  try {
+                    const res = await authService.forgotPassword(forgotValue.trim());
+                    setForgotMessage(res?.message || "Nếu tài khoản tồn tại, hướng dẫn đặt lại mật khẩu sẽ được gửi tới email đăng ký.");
+                  } catch (err) {
+                    const axiosError = err as AxiosError<{ message?: string }>;
+                    setForgotMessage(
+                      axiosError?.response?.data?.message ||
+                        "Nếu tài khoản tồn tại, hướng dẫn đặt lại mật khẩu sẽ được gửi tới email đăng ký."
+                    );
+                  } finally {
+                    setForgotLoading(false);
+                  }
+                }}
+                className="px-6 py-2.5 rounded-lg font-medium bg-blue-700 text-white hover:bg-blue-800 disabled:opacity-70"
+              >
+                {forgotLoading ? "Đang gửi..." : "Gửi"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

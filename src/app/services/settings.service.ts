@@ -1,12 +1,11 @@
-import axios from "axios";
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5090/api";
+import { api } from "@/lib/api";
 
 export interface SystemSettingsDto {
   siteName: string;
   slogan: string;
   seoDescription: string;
   logoUrl?: string | null;
+  administrativeMapImageUrl?: string | null;
   contactPhone: string;
   contactEmail: string;
   contactAddress: string;
@@ -20,6 +19,7 @@ export interface UpdateSystemSettingsDto {
   slogan: string;
   seoDescription: string;
   logoUrl?: string | null;
+  administrativeMapImageUrl?: string | null;
   contactPhone: string;
   contactEmail: string;
   contactAddress: string;
@@ -28,32 +28,19 @@ export interface UpdateSystemSettingsDto {
   youtubeUrl?: string | null;
 }
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    return undefined;
-  }
-
-  return { Authorization: `Bearer ${token}` };
-};
-
 export const settingsService = {
   getPublic: async () => {
-    const response = await axios.get(`${API_BASE_URL}/settings`);
+    const response = await api.get(`/settings`);
     return response.data as SystemSettingsDto;
   },
 
   get: async () => {
-    const response = await axios.get(`${API_BASE_URL}/admin/settings`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await api.get(`/admin/settings`);
     return response.data as SystemSettingsDto;
   },
 
   update: async (payload: UpdateSystemSettingsDto) => {
-    const response = await axios.put(`${API_BASE_URL}/admin/settings`, payload, {
-      headers: getAuthHeaders(),
-    });
+    const response = await api.put(`/admin/settings`, payload);
     return response.data as SystemSettingsDto;
   },
 };

@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_BaseURL = '/api';
+import { api } from "@/lib/api";
 
 export interface MediaItemDto {
   id: string;
@@ -24,31 +22,22 @@ export const mediaService = {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await axios.post(`${API_BaseURL}/admin/media/upload`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-    });
+    // Do not set Content-Type manually; the browser will add the correct multipart boundary.
+    const response = await api.post(`/admin/media/upload`, formData);
     return response.data;
   },
 
   getAll: async (params?: { page?: number; pageSize?: number; q?: string }) => {
-    const response = await axios.get(`${API_BaseURL}/admin/media`, {
-        params,
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
+    const response = await api.get(`/admin/media`, { params });
     return response.data as PagedMediaResponse;
   },
 
   getPublic: async (params?: { page?: number; pageSize?: number; q?: string }) => {
-    const response = await axios.get(`${API_BaseURL}/media`, { params });
+    const response = await api.get(`/media`, { params });
     return response.data as PagedMediaResponse;
   },
 
   remove: async (id: string) => {
-    await axios.delete(`${API_BaseURL}/admin/media/${id}`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
+    await api.delete(`/admin/media/${id}`);
   }
 };

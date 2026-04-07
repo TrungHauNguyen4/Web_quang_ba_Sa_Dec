@@ -207,7 +207,10 @@ export function Home() {
           <div className="bg-[#1f6dc0] px-3 py-2 text-center text-xl md:text-2xl font-bold text-white">BẢN ĐỒ HÀNH CHÍNH</div>
           <div className="p-3">
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/BlankMap-Vietnam-provinces.svg/640px-BlankMap-Vietnam-provinces.svg.png"
+              src={
+                settings?.administrativeMapImageUrl ||
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/BlankMap-Vietnam-provinces.svg/640px-BlankMap-Vietnam-provinces.svg.png"
+              }
               alt="Bản đồ"
               className="w-full border border-slate-300"
             />

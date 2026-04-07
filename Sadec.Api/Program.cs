@@ -11,6 +11,7 @@ using Sadec.Api.Middlewares;
 using Sadec.Api.Services.Audit;
 using Sadec.Api.Services.Auth;
 using Sadec.Api.Services.Comments;
+using Sadec.Api.Services.Email;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -107,7 +108,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     }
     else
     {
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+        options.UseSqlServer(
+            builder.Configuration.GetConnectionString("DefaultConnection"),
+            sqlOptions => sqlOptions.EnableRetryOnFailure());
     }
 });
 
@@ -115,6 +118,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHostedService<RefreshTokenCleanupService>();
 
@@ -189,6 +193,31 @@ using (var scope = app.Services.CreateScope())
     var userManager = scope.ServiceProvider.GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<ApplicationUser>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<Microsoft.AspNetCore.Identity.RoleManager<Microsoft.AspNetCore.Identity.IdentityRole<Guid>>>();
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
+
+    // Ensure schema exists in production when using a persistent database.
+    if (!useInMemoryDatabase)
+    {
+        const int maxAttempts = 10;
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                await dbContext.Database.MigrateAsync();
+                break;
+            }
+            catch (Exception ex) when (attempt < maxAttempts)
+            {
+                logger.LogWarning(ex,
+                    "Database migration attempt {Attempt}/{MaxAttempts} failed; retrying in 5 seconds.",
+                    attempt,
+                    maxAttempts);
+
+                await Task.Delay(TimeSpan.FromSeconds(5));
+            }
+        }
+    }
+
     await DataSeeder.SeedIdentityAsync(userManager, roleManager);
     await DataSeeder.SeedPublicServicesAsync(dbContext);
 }

@@ -16,6 +16,7 @@ public sealed class AdminSettingsController(ApplicationDbContext dbContext) : Co
     private const string SloganKey = "site.slogan";
     private const string SeoDescriptionKey = "site.seoDescription";
     private const string LogoUrlKey = "site.logoUrl";
+    private const string AdministrativeMapImageUrlKey = "site.administrativeMapImageUrl";
     private const string ContactPhoneKey = "contact.phone";
     private const string ContactEmailKey = "contact.email";
     private const string ContactAddressKey = "contact.address";
@@ -36,6 +37,7 @@ public sealed class AdminSettingsController(ApplicationDbContext dbContext) : Co
             Slogan: Read(settings, SloganKey, "Minh bạch - Hiệu quả - Phục vụ"),
             SeoDescription: Read(settings, SeoDescriptionKey, "Cổng thông tin điện tử cấp phường, cung cấp dịch vụ công trực tuyến, thông báo điều hành và tiếp nhận phản ánh kiến nghị."),
             LogoUrl: ReadOptional(settings, LogoUrlKey),
+            AdministrativeMapImageUrl: ReadOptional(settings, AdministrativeMapImageUrlKey),
             ContactPhone: Read(settings, ContactPhoneKey, "0277 3861 xxx"),
             ContactEmail: Read(settings, ContactEmailKey, "contact@sadec.gov.vn"),
             ContactAddress: Read(settings, ContactAddressKey, "UBND TP Sa Đéc, Phường 1, TP Sa Đéc, Phường Sa Đéc"),
@@ -52,6 +54,7 @@ public sealed class AdminSettingsController(ApplicationDbContext dbContext) : Co
         await UpsertAsync(SloganKey, request.Slogan, cancellationToken);
         await UpsertAsync(SeoDescriptionKey, request.SeoDescription, cancellationToken);
         await UpsertAsync(LogoUrlKey, request.LogoUrl, cancellationToken);
+        await UpsertAsync(AdministrativeMapImageUrlKey, request.AdministrativeMapImageUrl, cancellationToken);
         await UpsertAsync(ContactPhoneKey, request.ContactPhone, cancellationToken);
         await UpsertAsync(ContactEmailKey, request.ContactEmail, cancellationToken);
         await UpsertAsync(ContactAddressKey, request.ContactAddress, cancellationToken);
@@ -66,6 +69,7 @@ public sealed class AdminSettingsController(ApplicationDbContext dbContext) : Co
             request.Slogan.Trim(),
             request.SeoDescription.Trim(),
             NormalizeOptional(request.LogoUrl),
+            NormalizeOptional(request.AdministrativeMapImageUrl),
             request.ContactPhone.Trim(),
             request.ContactEmail.Trim(),
             request.ContactAddress.Trim(),
