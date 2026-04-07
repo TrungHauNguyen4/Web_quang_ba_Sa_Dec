@@ -34,3 +34,9 @@ public sealed class UserUpdateRoleDto
     [Required, StringLength(30)]
     public string Role { get; set; } = "Editor";
 }
+
+public sealed class UserResetPasswordDto
+{
+    [Required, StringLength(200, MinimumLength = 6)]
+    public string NewPassword { get; set; } = string.Empty;
+}

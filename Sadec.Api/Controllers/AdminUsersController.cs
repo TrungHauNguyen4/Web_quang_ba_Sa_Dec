@@ -173,4 +173,27 @@ public sealed class AdminUsersController(
 
         return NoContent();
     }
+
+    [HttpPost("{id:guid}/reset-password")]
+    public async Task<IActionResult> ResetPassword(Guid id, [FromBody] UserResetPasswordDto request)
+    {
+        var user = await userManager.FindByIdAsync(id.ToString());
+        if (user is null) return NotFound(new { message = "Không tìm thấy người dùng." });
+
+        var token = await userManager.GeneratePasswordResetTokenAsync(user);
+        var result = await userManager.ResetPasswordAsync(user, token, request.NewPassword);
+
+        if (!result.Succeeded)
+        {
+            return BadRequest(new { message = string.Join("; ", result.Errors.Select(e => e.Description)) });
+        }
+
+        await auditLogService.WriteAsync(
+            action: "user.password_reset_by_admin",
+            targetType: "user",
+            targetId: user.Id.ToString(),
+            metadata: user.Email);
+
+        return NoContent();
+    }
 }

@@ -35,4 +35,8 @@ export const userService = {
   remove: async (id: string) => {
     await api.delete(`/admin/users/${id}`);
   },
+
+  resetPassword: async (id: string, newPassword: string) => {
+    await api.post(`/admin/users/${id}/reset-password`, { newPassword });
+  },
 };

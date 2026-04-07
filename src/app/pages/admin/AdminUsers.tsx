@@ -25,6 +25,13 @@ export function AdminUsers() {
   const [totalPages, setTotalPages] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [isResetOpen, setIsResetOpen] = useState(false);
+  const [resetUser, setResetUser] = useState<UserItem | null>(null);
+  const [resetPassword, setResetPassword] = useState("");
+  const [resetConfirmPassword, setResetConfirmPassword] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
+
   const [form, setForm] = useState({
     displayName: "",
     email: "",
@@ -115,6 +122,44 @@ export function AdminUsers() {
       await loadData();
     } catch {
       setError("Cập nhật vai trò thất bại.");
+    }
+  };
+
+  const openResetModal = (user: UserItem) => {
+    setError(null);
+    setResetError(null);
+    setResetUser(user);
+    setResetPassword("");
+    setResetConfirmPassword("");
+    setIsResetOpen(true);
+  };
+
+  const handleResetPassword = async () => {
+    if (!resetUser) return;
+
+    if (!resetPassword || !resetConfirmPassword) {
+      setResetError("Vui lòng nhập đầy đủ thông tin.");
+      return;
+    }
+
+    if (resetPassword !== resetConfirmPassword) {
+      setResetError("Mật khẩu xác nhận không khớp.");
+      return;
+    }
+
+    setResetLoading(true);
+    setResetError(null);
+    try {
+      await userService.resetPassword(resetUser.id, resetPassword);
+      setIsResetOpen(false);
+      setResetUser(null);
+      await loadData();
+    } catch (err) {
+      const axiosError = err as AxiosError<{ message?: string }>;
+      const message = axiosError?.response?.data?.message;
+      setResetError(message || "Reset mật khẩu thất bại.");
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -225,7 +270,15 @@ export function AdminUsers() {
                     </td>
                     <td className="p-4 text-stone-500">{toDate(user.createdAt)}</td>
                     <td className="p-4 text-right">
-                      <button onClick={() => void handleDelete(user)} className="px-3 py-1.5 bg-red-50 text-red-700 rounded text-xs">Xóa</button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => openResetModal(user)}
+                          className="px-3 py-1.5 bg-stone-100 text-stone-800 rounded text-xs"
+                        >
+                          Reset mật khẩu
+                        </button>
+                        <button onClick={() => void handleDelete(user)} className="px-3 py-1.5 bg-red-50 text-red-700 rounded text-xs">Xóa</button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -284,6 +337,70 @@ export function AdminUsers() {
             <div className="p-6 border-t border-stone-100 flex justify-end gap-3 bg-stone-50 rounded-b-2xl">
               <button onClick={() => setIsModalOpen(false)} className="px-6 py-2.5 rounded-lg font-medium text-stone-600 hover:bg-stone-200">Hủy</button>
               <button onClick={() => void handleCreate()} className="px-6 py-2.5 rounded-lg font-medium bg-stone-800 text-white hover:bg-stone-900">Tạo tài khoản</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {isResetOpen && resetUser ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-stone-900/40"
+            onClick={() => {
+              if (!resetLoading) setIsResetOpen(false);
+            }}
+          />
+          <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md">
+            <div className="p-6 border-b border-stone-100 flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-bold text-stone-800">Reset mật khẩu</h2>
+                <p className="text-xs text-stone-500 mt-1">{resetUser.displayName} ({resetUser.email})</p>
+              </div>
+              <button
+                onClick={() => {
+                  if (!resetLoading) setIsResetOpen(false);
+                }}
+                className="p-2 text-stone-400 hover:bg-stone-100 rounded-full"
+                aria-label="Đóng"
+                title="Đóng"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-3">
+              {resetError ? <div className="text-sm text-red-600">{resetError}</div> : null}
+              <input
+                type="password"
+                value={resetPassword}
+                onChange={(e) => setResetPassword(e.target.value)}
+                placeholder="Mật khẩu mới"
+                className="w-full px-4 py-2.5 rounded-lg border border-stone-200"
+              />
+              <input
+                type="password"
+                value={resetConfirmPassword}
+                onChange={(e) => setResetConfirmPassword(e.target.value)}
+                placeholder="Xác nhận mật khẩu mới"
+                className="w-full px-4 py-2.5 rounded-lg border border-stone-200"
+              />
+            </div>
+
+            <div className="p-6 border-t border-stone-100 flex justify-end gap-3 bg-stone-50 rounded-b-2xl">
+              <button
+                onClick={() => setIsResetOpen(false)}
+                disabled={resetLoading}
+                className="px-6 py-2.5 rounded-lg font-medium text-stone-600 hover:bg-stone-200 disabled:opacity-70"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={() => void handleResetPassword()}
+                disabled={resetLoading}
+                className="px-6 py-2.5 rounded-lg font-medium bg-stone-800 text-white hover:bg-stone-900 disabled:opacity-70"
+              >
+                {resetLoading ? "Đang xử lý..." : "Xác nhận"}
+              </button>
             </div>
           </div>
         </div>
