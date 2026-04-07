@@ -1,0 +1,1422 @@
+% !TeX program = xelatex
+% Báo cáo kết thúc môn (mở rộng 30-50 trang) — từ dự án hiện tại
+
+\documentclass[12pt,a4paper,oneside]{report}
+
+% =========================
+% 0) Thiết lập chung
+% =========================
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{indentfirst}
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{1.2cm}
+
+% =========================
+% 1) Tiếng Việt + Font (XeLaTeX)
+% =========================
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setdefaultlanguage{vietnamese}
+
+\IfFontExistsTF{Times New Roman}{
+  \setmainfont{Times New Roman}
+}{
+  \setmainfont{TeX Gyre Termes}
+}
+
+\IfFontExistsTF{Arial}{
+  \setsansfont{Arial}
+}{
+  \setsansfont{TeX Gyre Heros}
+}
+
+\IfFontExistsTF{JetBrains Mono}{
+  \setmonofont{JetBrains Mono}
+}{
+  \IfFontExistsTF{Consolas}{
+    \setmonofont{Consolas}
+  }{
+    \setmonofont{Latin Modern Mono}
+  }
+}
+
+% =========================
+% 2) Gói tiện ích
+% =========================
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{microtype}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=blue,
+  citecolor=black
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Báo cáo kết thúc môn}
+\rhead{Cổng thông tin Sa Đéc}
+\cfoot{\thepage}
+
+\lstdefinestyle{codestyle}{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue!70!black},
+  commentstyle=\color{gray!70!black},
+  stringstyle=\color{teal!60!black},
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{black!20},
+  tabsize=2,
+  showstringspaces=false,
+  language=csh
+}
+\lstset{style=codestyle}
+
+% =========================
+% 3) Thông tin dự án
+% =========================
+\newcommand{\ProjectName}{Cổng thông tin quảng bá Sa Đéc}
+\newcommand{\FrontendUrl}{https://ashy-field-09c183d00.2.azurestaticapps.net}
+\newcommand{\BackendUrl}{https://sadec-backend.azurewebsites.net}
+\newcommand{\SwaggerUrl}{https://sadec-backend.azurewebsites.net/swagger}
+
+% Macro placeholder
+\newcommand{\ImagePlaceholder}[3]{%
+  \begin{figure}[H]
+    \centering
+    \fbox{\parbox{0.92\textwidth}{\vspace{18pt}\centering\textbf{[CHÈN ẢNH]} \\ \textbf{#1}\\\vspace{6pt}\textit{Tên file:} \texttt{#2}\\\vspace{6pt}\textit{Nội dung:} #3\vspace{18pt}}}
+  \end{figure}
+}
+
+\begin{document}
+
+% =========================
+% TRANG BÌA (TỰ THIẾT KẾ)
+% =========================
+% \input{cover.tex}
+
+% =========================
+% MỤC LỤC
+% =========================
+\pagenumbering{roman}
+\tableofcontents
+\listoffigures
+\listoftables
+\newpage
+
+% =========================
+% CHƯƠNG 1: GIỚI THIỆU
+% =========================
+\pagenumbering{arabic}
+
+\chapter{Giới thiệu}
+
+\section{Bối cảnh và lý do chọn đề tài}
+
+Trong bối cảnh chuyển đổi số tại các địa phương, nhu cầu cung cấp thông tin công khai và quảng bá du lịch ngày càng tăng.
+Thành phố Sa Đéc, một thành phố truyền thống giàu tiềm năng về du lịch và nền văn hóa, cần có một cổng thông tin định tập trung
+để quản lý các thông tin: tin tức địa phương, điểm đến du lịch, ẩm thực đặc sắc, và các sự kiện quan trọng.
+
+Một hệ thống web hiện đại không chỉ giúp cung cấp thông tin kịp thời mà còn tạo cơ hội thu hút du khách, phát triển du lịch
+và nâng cao hình ảnh của địa phương trên các nền tảng kỹ thuật số.
+
+\section{Mục tiêu đề tài}
+
+Đề tài này hướng tới các mục tiêu sau:
+
+\begin{enumerate}[itemsep=4pt]
+  \item Xây dựng website công khai (public) với giao diện thân thiện người dùng, hiển thị:
+  \begin{itemize}
+    \item Tin tức địa phương (news).
+    \item Điểm đến du lịch (destinations).
+    \item Ẩm thực đặc sắc (cuisines).
+    \item Bản đồ hành chính và thông tin liên hệ.
+    \item Feedback từ khách hàng.
+  \end{itemize}
+  
+  \item Xây dựng hệ thống quản trị (admin backend) cho phép:
+  \begin{itemize}
+    \item Biên tập viên tạo, cập nhật, xoá nội dung.
+    \item Quản lý trạng thái nội dung (draft, published, archived).
+    \item Upload và quản lý hình ảnh/media.
+    \item Duyệt bình luận và phản hồi.
+  \end{itemize}
+  
+  \item Đảm bảo bảo mật:
+  \begin{itemize}
+    \item Xác thực người dùng bằng JWT (JSON Web Token).
+    \item Phân quyền theo vai trò (Admin, Editor, Viewer).
+    \item Bảo vệ API bằng CORS và authorization.
+  \end{itemize}
+  
+  \item Triển khai trên nền tảng cloud (Azure):
+  \begin{itemize}
+    \item Frontend trên Azure Static Web Apps.
+    \item Backend trên Azure App Service.
+    \item Dữ liệu lưu trên Azure SQL Database.
+  \end{itemize}
+  
+  \item Đảm bảo tính ổn định và tính sẵn sàng:
+  \begin{itemize}
+    \item Dữ liệu bền vững (persistent) trên Azure SQL.
+    \item Tự động migration schema.
+    \item Recovery mechanism cho các lỗi tạm thời.
+  \end{itemize}
+\end{enumerate}
+
+\section{Phạm vi thực hiện}
+
+Toàn bộ dự án bao gồm:
+
+\subsection{Frontend}
+\begin{itemize}[itemsep=2pt]
+  \item Trang chủ public với tính năng search.
+  \item Trang chi tiết nội dung (news, destinations, cuisines).
+  \item Trang login/đăng xuất.
+  \item Dashboard admin với các bảng quản lý CRUD.
+  \item Trang cài đặt hệ thống (logo, cấu hình).
+  \item Trang quản lý người dùng.
+  \item Trang quên/đặt lại mật khẩu.
+\end{itemize}
+
+\subsection{Backend}
+\begin{itemize}[itemsep=2pt]
+  \item API public: lấy danh sách, chi tiết nội dung, cài đặt.
+  \item API admin: CRUD nội dung, quản lý media, quản lý người dùng.
+  \item API xác thực: login, refresh token, forgot/reset password.
+  \item API quản lý cài đặt và log hành động admin.
+\end{itemize}
+
+\subsection{Cơ sở dữ liệu}
+\begin{itemize}[itemsep=2pt]
+  \item Các bảng entity chính: Users, News, Destinations, Cuisines, Comments, Settings, MediaFiles.
+  \item Audit log cho các hành động quan trọng.
+\end{itemize}
+
+\section{Đối tượng sử dụng}
+
+\begin{itemize}[itemsep=3pt]
+  \item \textbf{Người dùng công khai (Public User):} Truy cập website để xem thông tin, tìm kiếm địa điểm, xem tin tức.
+  \item \textbf{Biên tập viên (Editor):} Tạo, chỉnh sửa nội dung (news, destinations); không được quản lý người dùng.
+  \item \textbf{Quản trị viên (Admin):} Toàn quyền: CRUD nội dung, quản lý người dùng, cài đặt hệ thống, xem log.
+\end{itemize}
+
+\section{Môi trường triển khai}
+
+Hệ thống được triển khai trên các dịch vụ Azure:
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Thành phần} & \textbf{Dịch vụ} & \textbf{URL/Endpoint} \\
+\hline
+Frontend & Azure Static Web Apps & \url{\FrontendUrl} \\
+\hline
+Backend API & Azure App Service & \url{\BackendUrl} \\
+\hline
+Swagger UI & App Service & \url{\SwaggerUrl} \\
+\hline
+Cơ sở dữ liệu & Azure SQL Database & sqlserver.database.windows.net \\
+\hline
+\end{tabular}
+\end{center}
+
+\ImagePlaceholder{Giao diện trang chủ}{ui_homepage.png}{Chụp trang chủ sau deploy: banner, tin tức nổi bật, địa điểm nổi bật, bản đồ}
+
+% =========================
+% CHƯƠNG 2: CƠ SỞ LÝ THUYẾT
+% =========================
+
+\chapter{Cơ sở lý thuyết}
+
+\section{Kiến trúc ứng dụng web hiện đại}
+
+\subsection{Mô hình Single Page Application (SPA)}
+
+Ứng dụng SPA là kiểu ứng dụng web tải toàn bộ code và resource một lần, sau đó điều hướng bằng JavaScript mà không cần tải lại trang.
+Ưu điểm:
+\begin{itemize}[itemsep=2pt]
+  \item Trải nghiệm người dùng mượt mà (smooth UX).
+  \item Giảm tải cho server (chỉ phục vụ API).
+  \item Cho phép offline hoạt động (với service worker).
+\end{itemize}
+
+Thách thức:
+\begin{itemize}[itemsep=2pt]
+  \item Reload trực tiếp route (ví dụ: \texttt{/admin/users}) có thể gặp lỗi 404 nếu server không cấu hình rewrite.
+  \item Cần cấu hình CORS giữa frontend và backend nếu khác domain.
+\end{itemize}
+
+\subsection{API RESTful}
+
+REST (Representational State Transfer) sử dụng HTTP method để biểu diễn các thao tác:
+
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{Method} & \textbf{Ý nghĩa} & \textbf{Endpoint ví dụ} & \textbf{Trả về} \\
+\hline
+GET & Lấy dữ liệu & \texttt{/api/news/1} & 200 OK + data \\
+\hline
+POST & Tạo mới & \texttt{/api/admin/news} & 201 Created \\
+\hline
+PUT & Cập nhật toàn bộ & \texttt{/api/admin/news/1} & 200 OK \\
+\hline
+PATCH & Cập nhật một phần & \texttt{/api/admin/news/1} & 200 OK \\
+\hline
+DELETE & Xoá & \texttt{/api/admin/news/1} & 204 No Content \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Xác thực và phân quyền (Authentication \& Authorization)}
+
+\subsection{JWT (JSON Web Token)}
+
+JWT là chuỗi mã hóa gồm 3 phần (header.payload.signature), cho phép server xác minh danh tính của client mà không cần lưu trạng thái session.
+
+Cấu trúc JWT:
+\begin{lstlisting}[language=json,caption={Ví dụ JWT Payload}]
+{
+  "sub": "user_id",
+  "email": "editor@sadec.local",
+  "roles": ["Editor"],
+  "exp": 1712345600,
+  "iat": 1712342000
+}
+\end{lstlisting}
+
+Luồng xác thực:
+\begin{enumerate}[itemsep=2pt]
+  \item Client gửi username + password tới \texttt{/api/auth/login}.
+  \item Server trả access token (JWT) + refresh token.
+  \item Client gửi kèm header: \texttt{Authorization: Bearer <access\_token>}.
+  \item Khi access token hết hạn, client dùng refresh token để lấy access token mới.
+\end{enumerate}
+
+\subsection{Role-Based Access Control (RBAC)}
+
+Hệ thống sử dụng 3 vai trò chính:
+
+\begin{center}
+\begin{tabular}{|l|p{4cm}|p{4.5cm}|}
+\hline
+\textbf{Vai trò} & \textbf{Quyền} & \textbf{API được phép} \\
+\hline
+Admin & Toàn quyền & Tất cả endpoint \\
+\hline
+Editor & CRUD nội dung & \texttt{/api/admin/news/*}, \texttt{/api/admin/destinations/*} \\
+\hline
+Viewer & Chỉ đọc & \texttt{/api/public/*} \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Công nghệ Stack}
+
+\subsection{Frontend Stack}
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{React 18:} Thư viện UI component-based.
+  \item \textbf{TypeScript:} Tăng type-safety và đơn giản hóa debugging.
+  \item \textbf{Vite:} Build tool nhanh, HMR (Hot Module Replacement) tức thời.
+  \item \textbf{React Router v6:} Định tuyến SPA.
+  \item \textbf{Axios:} HTTP client với interceptor.
+  \item \textbf{Tailwind CSS:} Styling framework utility-first.
+\end{itemize}
+
+\subsection{Backend Stack}
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{ASP.NET Core 8:} Framework web API .NET.
+  \item \textbf{ASP.NET Identity:} Quản lý user, role, password.
+  \item \textbf{Entity Framework Core:} ORM cho SQL.
+  \item \textbf{SQL Server / Azure SQL:} Cơ sở dữ liệu quan hệ.
+  \item \textbf{Swagger:} Tài liệu API interactiv.
+\end{itemize}
+
+\subsection{DevOps \& Cloud}
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{Azure Static Web Apps:} Triển khai frontend với CI/CD tự động.
+  \item \textbf{Azure App Service:} Chạy backend ASP.NET.
+  \item \textbf{Azure SQL Database:} Cơ sở dữ liệu cloud.
+  \item \textbf{GitHub Actions:} Automation build và deploy.
+\end{itemize}
+
+\section{Entity-Relationship Model (ERD)}
+
+\subsection{Các bảng chính}
+
+\begin{itemize}[itemsep=3pt]
+  \item \textbf{AspNetUsers} (từ ASP.NET Identity):
+  \begin{itemize}
+    \item Lưu user: Id, UserName, Email, PasswordHash, CreatedAt.
+  \end{itemize}
+  
+  \item \textbf{AspNetRoles}: Admin, Editor, Viewer.
+  
+  \item \textbf{News} (Tin tức):
+  \begin{itemize}
+    \item Title, Slug, Content, Excerpt, FeaturedImageUrl.
+    \item Status (Draft, Published, Archived).
+    \item CreatedBy, CreatedAt, UpdatedAt.
+  \end{itemize}
+  
+  \item \textbf{Destinations} (Địa điểm):
+  \begin{itemize}
+    \item Name, Slug, Description, ImageUrl.
+    \item Coordinates (latitude, longitude).
+    \item Status, CreatedAt.
+  \end{itemize}
+  
+  \item \textbf{Cuisines} (Ẩm thực):
+  \begin{itemize}
+    \item Name, Slug, Description, ImageUrl.
+    \item Status, CreatedAt.
+  \end{itemize}
+  
+  \item \textbf{Comments} (Bình luận):
+  \begin{itemize}
+    \item Content, Status (Pending, Approved, Rejected).
+    \item EntityType (News, Destination), EntityId.
+  \end{itemize}
+  
+  \item \textbf{Settings} (Cài đặt hệ thống):
+  \begin{itemize}
+    \item Key (ví dụ: site.logo, site.title, site.administrativeMapImageUrl).
+    \item Value (JSON).
+  \end{itemize}
+  
+  \item \textbf{AuditLog} (Log hành động):
+  \begin{itemize}
+    \item Action, UserId, EntityType, EntityId, Timestamp.
+  \end{itemize}
+\end{itemize}
+
+\ImagePlaceholder{ERD (Entity Relationship Diagram)}{erd_diagram.png}{Vẽ sơ đồ mối quan hệ các bảng hoặc chụp từ SSMS.}
+
+% =========================
+% CHƯƠNG 3: PHÂN TÍCH VÀ THIẾT KẾ
+% =========================
+
+\chapter{Phân tích và thiết kế}
+
+\section{Khảo sát yêu cầu chi tiết}
+
+\subsection{Yêu cầu chức năng (Functional Requirements)}
+
+\begin{longtable}{|p{0.08\textwidth}|p{0.50\textwidth}|p{0.25\textwidth}|}
+\toprule
+\textbf{Mã} & \textbf{Mô tả} & \textbf{Phạm vi} \\
+\midrule
+\endhead
+
+FR-01 & Người dùng public xem danh sách tin tức (phân trang, search) & Public \\
+\hline
+FR-02 & Người dùng public xem chi tiết tin tức & Public \\
+\hline
+FR-03 & Người dùng public xem danh sách/chi tiết điểm đến & Public \\
+\hline
+FR-04 & Người dùng public xem danh sách/chi tiết ẩm thực & Public \\
+\hline
+FR-05 & Người dùng public gửi feedback & Public \\
+\hline
+FR-06 & Xem bản đồ hành chính trên trang chủ & Public \\
+\hline
+FR-07 & Đăng nhập hệ thống admin & Admin/Editor \\
+\hline
+FR-08 & Quên mật khẩu và đặt lại (self-service) & Admin/Editor \\
+\hline
+FR-09 & Tạo, chỉnh sửa, xoá tin tức & Admin/Editor \\
+\hline
+FR-10 & Tạo, chỉnh sửa, xoá điểm đến & Admin/Editor \\
+\hline
+FR-11 & Tạo, chỉnh sửa, xoá ẩm thực & Admin/Editor \\
+\hline
+FR-12 & Upload, xoá hình ảnh/media & Admin/Editor \\
+\hline
+FR-13 & Duyệt và phê duyệt bình luận & Admin \\
+\hline
+FR-14 & Quản lý cài đặt hệ thống (logo, slogan, map) & Admin \\
+\hline
+FR-15 & Quản lý người dùng (tạo, xoá, đổi role) & Admin \\
+\hline
+FR-16 & Admin reset mật khẩu trực tiếp cho user & Admin \\
+\hline
+FR-17 & Xem log hành động admin & Admin \\
+\hline
+
+\bottomrule
+\end{longtable}
+
+\subsection{Yêu cầu phi chức năng (Non-Functional Requirements)}
+
+\begin{itemize}[itemsep=3pt]
+  \item \textbf{Bảo mật:}
+  \begin{itemize}
+    \item Tất cả API admin bắt buộc xác thực JWT.
+    \item Mật khẩu mã hóa bcrypt.
+    \item CORS cấu hình chặt chẽ.
+  \end{itemize}
+  
+  \item \textbf{Hiệu năng:}
+  \begin{itemize}
+    \item Danh sách dùng phân trang (mặc định 10-20 item).
+    \item Media upload tối đa 50MB (tuỳ cấu hình).
+    \item Response time < 2 giây cho API public.
+  \end{itemize}
+  
+  \item \textbf{Tính ổn định:}
+  \begin{itemize}
+    \item Dữ liệu bền vững (persistent) trên Azure SQL.
+    \item Tự động migration schema khi update.
+    \item Retry mechanism cho các lỗi tạm thời.
+  \end{itemize}
+  
+  \item \textbf{Khả năng triển khai:}
+  \begin{itemize}
+    \item CI/CD tự động qua GitHub Actions.
+    \item Deploy frontend chỉ cần push code.
+    \item Deploy backend bằng zip deployment đơn giản.
+  \end{itemize}
+\end{itemize}
+
+\section{Use-Case Diagram}
+
+\ImagePlaceholder{Use-Case Diagram tổng quan}{usecase_diagram.png}{Vẽ biểu đồ use-case: Public xem nội dung, Editor CRUD, Admin users settings}
+
+\section{Thiết kế kiến trúc hệ thống}
+
+\subsection{Sơ đồ kiến trúc 3-tier}
+
+Hệ thống theo kiến trúc 3 tầng:
+
+\begin{enumerate}[itemsep=3pt]
+  \item \textbf{Presentation Layer (Frontend):}
+  \begin{itemize}
+    \item React SPA chạy trong trình duyệt.
+    \item Gọi API backend qua Axios + interceptor.
+    \item Quản lý state toàn cục (nếu cần dùng Context API hoặc Redux).
+  \end{itemize}
+  
+  \item \textbf{API/Business Logic Layer (Backend):}
+  \begin{itemize}
+    \item ASP.NET Core Controllers xử lý request.
+    \item Services chứa business logic.
+    \item Middleware xử lý authentication, error handling.
+  \end{itemize}
+  
+  \item \textbf{Data Access Layer:}
+  \begin{itemize}
+    \item Entity Framework Core ORM.
+    \item Repositories pattern (tuỳ chọn).
+    \item Azure SQL Database backend.
+  \end{itemize}
+\end{enumerate}
+
+\ImagePlaceholder{Sơ đồ kiến trúc 3-tier}{architecture_3tier.png}{Vẽ hoặc chụp sơ đồ: Frontend SWA API App Service DB Azure SQL}
+
+\subsection{Cấu hình Static Web Apps cho SPA}
+
+Azure Static Web Apps yêu cầu cấu hình rewrite để hỗ trợ SPA routing:
+
+\begin{lstlisting}[language=json,caption={Cấu hình SPA rewrite trong staticwebapp.config.json}]
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/assets/*", "/api/*"]
+  }
+}
+\end{lstlisting}
+
+Khi người dùng reload page \texttt{/admin/users}, server trả về \texttt{index.html}, đặt để React Router xử lý routing.
+
+\section{Thiết kế API}
+
+\subsection{Base URL và cấu trúc endpoint}
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Nhóm} & \textbf{Base} & \textbf{Ví dụ endpoint} \\
+\hline
+Public & \texttt{/api/public/} & \texttt{GET /api/news} \\
+\hline
+Admin & \texttt{/api/admin/} & \texttt{POST /api/admin/news} \\
+\hline
+Auth & \texttt{/api/auth/} & \texttt{POST /api/auth/login} \\
+\hline
+Settings & \texttt{/api/settings/} & \texttt{GET /api/settings} \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Endpoint công khai (Public API)}
+
+\begin{lstlisting}[language=bash,caption={Danh sách endpoint public}]
+GET  /api/news?page=1&pageSize=10&q=search             # Lấy tin tức
+GET  /api/news/{id}                                      # Chi tiết tin tức
+GET  /api/news/slug/{slug}                               # Tìm theo slug
+GET  /api/destinations?page=1&pageSize=10                # Danh sách địa điểm
+GET  /api/destinations/{id}                              # Chi tiết địa điểm
+GET  /api/cuisines?page=1&pageSize=10                    # Danh sách ẩm thực
+GET  /api/settings                                       # Cài đặt hệ thống
+POST /api/feedback                                       # Gửi feedback
+\end{lstlisting}
+
+\subsection{Endpoint admin (yêu cầu Bearer token + role Admin/Editor)}
+
+\begin{lstlisting}[language=bash,caption={Danh sách endpoint admin}]
+POST   /api/admin/news                                   # Tạo tin tức
+GET    /api/admin/news?page=1&pageSize=20&status=1      # Danh sách admin
+PUT    /api/admin/news/{id}                              # Cập nhật tin tức
+DELETE /api/admin/news/{id}                              # Xoá tin tức
+
+POST   /api/admin/destinations                           # Tạo địa điểm
+PUT    /api/admin/destinations/{id}                      # Cập nhật
+DELETE /api/admin/destinations/{id}                      # Xoá
+
+POST   /api/admin/media                                  # Upload media
+GET    /api/admin/media/{id}                             # Chi tiết file
+DELETE /api/admin/media/{id}                             # Xoá file
+
+GET    /api/admin/users                                  # Danh sách user
+POST   /api/admin/users                                  # Tạo user
+PATCH  /api/admin/users/{id}/role                        # Đổi role
+DELETE /api/admin/users/{id}                             # Xoá user
+POST   /api/admin/users/{id}/reset-password              # Reset mật khẩu
+
+GET    /api/settings                                     # Lấy settings
+PUT    /api/settings/{key}                               # Cập nhật setting
+
+GET    /api/admin/audit-logs                             # Xem log hành động
+\end{lstlisting}
+
+\subsection{Endpoint xác thực (Auth API)}
+
+\begin{lstlisting}[language=bash,caption={Endpoint auth}]
+POST /api/auth/login                                     # Đăng nhập
+POST /api/auth/refresh-token                             # Cấp token mới
+POST /api/auth/forgot-password                           # Quên mật khẩu
+POST /api/auth/reset-password                            # Đặt lại mật khẩu
+\end{lstlisting}
+
+\subsection{Response Format}
+
+Tất cả API trả về JSON với cấu trúc chuẩn:
+
+\begin{lstlisting}[language=json,caption={Response thành công với danh sách}]
+{
+  "items": [
+    {"id": 1, "title": "Tin tức 1", "content": "..."},
+    {"id": 2, "title": "Tin tức 2", "content": "..."}
+  ],
+  "page": 1,
+  "pageSize": 10,
+  "total": 25,
+  "totalPages": 3
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=json,caption={Response lỗi}]
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Title is required",
+  "traceId": "..."
+}
+\end{lstlisting}
+
+\ImagePlaceholder{Swagger UI - Tài liệu API interactive}{swagger_ui.png}{Chụp Swagger UI trên máy production, hiển thị 3-4 endpoint chính.}
+
+\section{Thiết kế giao diện (UI/UX)}
+
+\subsection{Public Website}
+
+Trang công khai bao gồm:
+\begin{itemize}[itemsep=2pt]
+  \item Trang chủ: banner, các tin/điểm đến nổi bật, bản đồ hành chính.
+  \item Trang tin tức: danh sách phân trang, search, filter theo ngày.
+  \item Trang chi tiết tin: toàn bộ nội dung, comments, share.
+  \item Trang điểm đến: map tương tác, chi tiết địa điểm.
+  \item Trang liên hệ / feedback form.
+\end{itemize}
+
+\subsection{Admin Portal}
+
+Bao gồm:
+\begin{itemize}[itemsep=2pt]
+  \item Dashboard: thống kê số tin, số user, hoạt động gần đây.
+  \item Quản lý tin tức: bảng CRUD với search, filter theo status.
+  \item Quản lý địa điểm: CRUD, upload hình.
+  \item Quản lý ẩm thực: tương tự.
+  \item Quản lý media: danh sách file, xoá, preview.
+  \item Quản lý người dùng: bảng user, tạo, đổi role, reset password.
+  \item Cài đặt hệ thống: form nhập key-value.
+  \item Log hành động: bảng audit log chỉ xem.
+\end{itemize}
+
+\ImagePlaceholder{Trang admin dashboard}{ui_admin_dashboard.png}{Chụp trang admin hiển thị thống kê, menu left sidebar}
+\ImagePlaceholder{Trang quản lý tin tức Admin}{ui_admin_news.png}{Chụp bảng danh sách tin, nút thêm sửa xoá, filter status}
+\ImagePlaceholder{Modal tạo sửa tin tức}{ui_modal_news_edit.png}{Chụp form: title, slug, content editor WYSIWYG status featured image}
+
+% =========================
+% CHƯƠNG 4: CÀI ĐẶT/TRIỂN KHAI
+% =========================
+
+\chapter{Cài đặt và triển khai}
+
+\section{Cấu trúc mã nguồn}
+
+\subsection{Frontend folder structure}
+
+\begin{lstlisting}[language=bash,caption={Cấu trúc src/ frontend}]
+src/
+├── app/
+│   ├── layouts/           # Layout component
+│   ├── pages/             # Trang public + admin
+│   │   ├── public/        # Home, News, Destinations, ...
+│   │   ├── admin/         # Dashboard, AdminNews, AdminUsers, ...
+│   │   ├── auth/          # Login, ResetPassword, ...
+│   ├── components/        # Component tái sử dụng
+│   ├── services/          # API wrapper (*.service.ts)
+│   ├── routes.tsx         # React Router config
+│   ├── App.tsx
+│   └── main.tsx
+├── lib/
+│   ├── api.ts             # Axios instance + interceptor
+│   └── utils.ts
+├── styles/                # Global CSS
+└── types/                 # TypeScript interfaces
+\end{lstlisting}
+
+\subsection{Backend folder structure}
+
+\begin{lstlisting}[language=bash,caption={Cấu trúc Sadec.Api/ backend}]
+Sadec.Api/
+├── Controllers/           # API endpoints
+│   ├── AdminNewsController.cs
+│   ├── AdminUsersController.cs
+│   ├── AuthController.cs
+│   ├── DestinationsController.cs
+│   ├── NewsController.cs
+│   └── ...
+├── Dtos/                  # Request/Response DTO
+│   ├── AuthDtos.cs
+│   ├── NewsDtos.cs
+│   ├── UserAdminDtos.cs
+│   └── ...
+├── Entities/              # EF Core entity models
+│   ├── ApplicationUser.cs
+│   ├── News.cs
+│   ├── Destination.cs
+│   └── ...
+├── Data/
+│   ├── ApplicationDbContext.cs
+│   ├── DataSeeder.cs
+│   └── Migrations/
+├── Services/              # Business logic
+│   ├── Email/
+│   │   ├── IEmailSender.cs
+│   │   └── SmtpEmailSender.cs
+│   ├── AuditService.cs
+│   └── ...
+├── Middlewares/           # Custom middleware
+│   ├── ErrorHandlingMiddleware.cs
+│   └── ...
+├── Program.cs             # Startup config
+├── appsettings.json       # Configuration
+└── Sadec.Api.csproj
+\end{lstlisting}
+
+\section{Setup môi trường local}
+
+\subsection{Backend setup}
+
+\begin{lstlisting}[language=bash,caption={Chạy backend local}]
+# Clone repo
+cd Sadec.Api
+
+# Restore NuGet packages
+dotnet restore
+
+# Apply migrations (nếu DB chưa tạo)
+dotnet ef database update
+
+# Chạy server
+dotnet run --project ./Sadec.Api.csproj
+
+# Swagger: http://localhost:5090/swagger
+\end{lstlisting}
+
+\subsection{Frontend setup}
+
+\begin{lstlisting}[language=bash,caption={Chạy frontend local}]
+# Cài dependencies
+npm ci
+
+# Chạy dev server
+npm run dev
+
+# Browser: http://localhost:5173
+\end{lstlisting}
+
+\section{Cài đặt reset mật khẩu}
+
+Hệ thống hỗ trợ 2 luồng reset mật khẩu:
+
+\subsection{Luồng 1: Người dùng tự đặt lại (Forgot/Reset Password)}
+
+\subsubsection{Backend implementation}
+
+Endpoint `/api/auth/forgot-password`:
+
+\begin{lstlisting}[language=java,caption={Forgot Password Endpoint}]
+[HttpPost]
+[AllowAnonymous]
+public async Task<IActionResult> ForgotPassword(
+    [FromBody] ForgotPasswordRequestDto request)
+{
+    var user = await _userManager.FindByNameAsync(request.UsernameOrEmail)
+        ?? await _userManager.FindByEmailAsync(request.UsernameOrEmail);
+    
+    if (user == null)
+    {
+        // Safety: không tiết lộ rằng user không tồn tại
+        return Ok(new { 
+            message = "If account exists, reset link sent to email" 
+        });
+    }
+    
+    // Generate reset token
+    var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+    
+    // Build reset URL
+    var resetUrl = $"{Request.Scheme}://{Request.Host}/reset-password?email={user.Email}&token={HttpUtility.UrlEncode(resetToken)}";
+    
+    // Gửi email (nếu SMTP cấu hình)
+    if (_emailSender != null)
+    {
+        await _emailSender.SendPasswordResetEmailAsync(user.Email, resetUrl);
+    }
+    
+    return Ok(new { 
+        message = "Reset link sent. Check email." 
+    });
+}
+\end{lstlisting}
+
+Endpoint `/api/auth/reset-password`:
+
+\begin{lstlisting}[language=java,caption={Reset Password Endpoint}]
+[HttpPost]
+[AllowAnonymous]
+public async Task<IActionResult> ResetPassword(
+    [FromBody] ResetPasswordRequestDto request)
+{
+    var user = await _userManager.FindByEmailAsync(request.Email);
+    if (user == null)
+        return BadRequest(new { message = "User not found" });
+    
+    var result = await _userManager.ResetPasswordAsync(
+        user, 
+        request.Token, 
+        request.NewPassword);
+    
+    if (result.Succeeded)
+        return Ok(new { message = "Password reset successful" });
+    
+    return BadRequest(new { message = string.Join(", ", result.Errors) });
+}
+\end{lstlisting}
+
+\subsubsection{Frontend implementation}
+
+Trang `/reset-password`:
+
+\begin{lstlisting}[language=bash,caption={URL format}]
+/reset-password?email=user@sadec.local&token=ABC123XYZ
+\end{lstlisting}
+
+Component xử lý:
+
+\begin{lstlisting}[language=bash,caption={Logic}]
+1. Parse URL query params (email, token)
+2. Và form nhập mật khẩu mới + xác nhận
+3. Gọi POST /api/auth/reset-password { email, token, newPassword }
+4. Nếu thành công, chuyển hướng tới /login
+\end{lstlisting}
+
+\subsection{Luồng 2: Admin reset mật khẩu trực tiếp}
+
+Endpoint `/api/admin/users/{id}/reset-password`:
+
+\begin{lstlisting}[language=java,caption={Admin Reset Password}]
+[HttpPost("{id}/reset-password")]
+[Authorize(Roles = "Admin")]
+public async Task<IActionResult> ResetPassword(
+    string id, 
+    [FromBody] UserResetPasswordDto request)
+{
+    var user = await _userManager.FindByIdAsync(id);
+    if (user == null)
+        return NotFound();
+    
+    // Generate token mới
+    var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+    
+    // Reset password
+    var result = await _userManager.ResetPasswordAsync(
+        user, 
+        resetToken, 
+        request.NewPassword);
+    
+    if (result.Succeeded)
+    {
+        // Log hành động
+        _auditService.LogAction("user.password_reset_by_admin", user.Id);
+        return NoContent(); // 204
+    }
+    
+    return BadRequest(new { message = string.Join(", ", result.Errors) });
+}
+\end{lstlisting}
+
+Frontend component (Modal trong Admin Users page):
+
+\begin{lstlisting}[language=bash,caption={UI Modal reset}]
+1. Chọn user từ bảng
+2. Nhấn "Reset mật khẩu"
+3. Modal yêu cầu: mật khẩu mới + xác nhận
+4. Validation: độ dài, complexity
+5. Gọi API + hiển thị kết quả
+\end{lstlisting}
+
+\section{Triển khai trên Azure}
+
+\subsection{Deploy Frontend}
+
+\begin{enumerate}[itemsep=2pt]
+  \item Build Vite: \texttt{npm run build} → output \texttt{dist/}
+  \item Copy \texttt{staticwebapp.config.json} vào \texttt{dist/}
+  \item Push code tới GitHub branch main
+  \item GitHub Actions workflow tự động deploy SWA
+  \item Xác minh: \url{\FrontendUrl}
+\end{enumerate}
+
+\subsection{Deploy Backend}
+
+\begin{enumerate}[itemsep=2pt]
+  \item Build Release: \texttt{dotnet publish -c Release -o ./publish\_backend}
+  \item Zip folder: \texttt{publish\_backend} → \texttt{publish.zip}
+  \item Deploy via Azure CLI:
+  \begin{lstlisting}[language=bash,caption={Deploy backend}]
+az webapp deploy --resource-group <group> \
+  --name <app-name> \
+  --src-path ./publish.zip \
+  --type zip
+  \end{lstlisting}
+  \item Xác minh: \url{\SwaggerUrl}
+\end{enumerate}
+
+\subsection{Cấu hình App Service}
+
+Các biến môi trường quan trọng (lưu trong App Service Configuration):
+
+\begin{center}
+\begin{tabular}{|l|p{5cm}|}
+\hline
+\textbf{Key} & \textbf{Value ví dụ} \\
+\hline
+DB\_CONNECTION\_STRING & \texttt{Server=sql.database.windows.net;...} \\
+\hline
+JWT\_SECRET & \texttt{your-secret-key-min-32-chars} \\
+\hline
+CORS\_ALLOWED\_ORIGINS & \texttt{https://ashy-field-09c183d00.2.azurestaticapps.net} \\
+\hline
+SMTP\_HOST & \texttt{smtp.gmail.com} (optional) \\
+\hline
+SMTP\_PORT & \texttt{587} (optional) \\
+\hline
+SMTP\_USER & \texttt{your-email@gmail.com} (optional) \\
+\hline
+FRONTEND\_BASE\_URL & \texttt{https://ashy-field-09c183d00.2.azurestaticapps.net} \\
+\hline
+\end{tabular}
+\end{center}
+
+% =========================
+% CHƯƠNG 5: KIỂM THỬ
+% =========================
+
+\chapter{Kiểm thử}
+
+\section{Mục tiêu kiểm thử}
+
+\begin{itemize}[itemsep=2pt]
+  \item Xác nhận các luồng chính hoạt động đúng.
+  \item Xác nhận bảo mật: API admin bắt buộc xác thực, CORS hoạt động.
+  \item Xác nhận dữ liệu bền vững: không bị reset khi restart.
+  \item Xác nhận SPA routing không lỗi 404.
+\end{itemize}
+
+\section{Kiểm thử thủ công}
+
+\subsection{Test Cases}
+
+\begin{longtable}{|p{0.06\textwidth}|p{0.45\textwidth}|p{0.22\textwidth}|p{0.20\textwidth}|}
+\toprule
+\textbf{TC} & \textbf{Bước kiểm thử} & \textbf{Kỳ vọng} & \textbf{Kết quả} \\
+\midrule
+\endhead
+
+TC01 & Truy cập trang chủ public & 200 OK, hiển thị nội dung & PASS \\
+\hline
+
+TC02 & Search tin tức & Danh sách tin phù hợp & PASS \\
+\hline
+
+TC03 & Đăng nhập admin với credential đúng & Chuyển hướng /admin, nhận token & PASS \\
+\hline
+
+TC04 & Đăng nhập admin với sai password & 401 Unauthorized & PASS \\
+\hline
+
+TC05 & Gọi API admin mà không token & 401 Unauthorized & PASS \\
+\hline
+
+TC06 & Gọi API admin với token nhưng role không đủ & 403 Forbidden & PASS \\
+\hline
+
+TC07 & Refresh token khi hết hạn & Tự động lấy token mới, retry thành công & PASS \\
+\hline
+
+TC08 & Reload trang /admin/users & Không lỗi 404 (SPA routing hoạt động) & PASS \\
+\hline
+
+TC09 & Tạo tin tức mới (admin) & Tin được lưu, xuất hiện trong danh sách admin & PASS \\
+\hline
+
+TC10 & Xoá tin tức (admin) & Tin bị xoá, không còn hiển thị & PASS \\
+\hline
+
+TC11 & Upload media (admin) & File lưu, URL trả về, download OK & PASS \\
+\hline
+
+TC12 & Admin tạo user mới & User được tạo, có email + sinh password tạm & PASS \\
+\hline
+
+TC13 & Admin reset password user & User đăng nhập được với password mới & PASS \\
+\hline
+
+TC14 & Quên mật khẩu (không SMTP) & Endpoint trả 200 (tuy không gửi email) & PASS \\
+\hline
+
+TC15 & Reset password bằng token & Mật khẩu update, đăng nhập với PW mới OK & PASS \\
+\hline
+
+TC16 & Restart app, dữ liệu đã tạo vẫn có & Dữ liệu bền vững trên Azure SQL & PASS \\
+\hline
+
+\bottomrule
+\end{longtable}
+
+\section{Kiểm thử API bằng Swagger/Postman}
+
+Truy cập \url{\SwaggerUrl} để test interactive:
+
+\begin{itemize}[itemsep=2pt]
+  \item Login endpoint: POST /api/auth/login
+  \item Copy token từ response
+  \item Click "Authorize" trong Swagger, paste token
+  \item Test các endpoint admin (News, Users, Settings)
+\end{itemize}
+
+\ImagePlaceholder{Swagger Test Login endpoint}{test_swagger_login.png}{Chụp Swagger request body response với token}
+\ImagePlaceholder{Swagger Test Admin Reset Password}{test_swagger_admin_reset.png}{Chụp Swagger POST api admin users id reset-password trả 204}
+
+\section{Kiểm thử Giao diện}
+
+\subsection{Kiểm thử Login}
+
+\begin{itemize}[itemsep=2pt]
+  \item Input credential admin@sadec.local / Admin@123
+  \item Xác nhận redirect /admin
+  \item Xác nhận token lưu localStorage
+\end{itemize}
+
+\subsection{Kiểm thử Reset Password}
+
+\begin{itemize}[itemsep=2pt]
+  \item Trang /reset-password?email=user@sadec.local&token=XYZ
+  \item Nhập password mới 2 lần
+  \item Submit → xác nhận redirect /login
+  \item Đăng nhập lại với password mới
+\end{itemize}
+
+\subsection{Kiểm thử Admin Users}
+
+\begin{itemize}[itemsep=2pt]
+  \item Xem danh sách user (bảng phân trang)
+  \item Nhấn "Thêm người dùng": modal mở
+  \item Nhập email + password, nhấn "Tạo"
+  \item Xác nhận user mới xuất hiện trong danh sách
+  \item Nhấn "Reset mật khẩu" trên user: modal mở
+  \item Nhập password mới, nhấn "Xác nhận"
+  \item Xác nhận thành công / lỗi hiển thị rõ
+\end{itemize}
+
+\ImagePlaceholder{UI form Thêm người dùng Admin}{ui_form_add_user.png}{Chụp modal email field password field nút Tạo}
+\ImagePlaceholder{UI modal Reset mật khẩu Admin Users}{ui_modal_reset_password.png}{Chụp modal hiển thị user ô password mới ô xác nhận nút Xác nhận}
+
+\section{Vấn đề phát hiện và xử lý}
+
+\subsection{Vấn đề 1: SPA reload trang con bị 404}
+
+\textbf{Nguyên nhân:} Server không cấu hình rewrite cho SPA.
+
+\textbf{Giải pháp:} Thêm \texttt{navigationFallback} trong \texttt{staticwebapp.config.json}.
+
+\textbf{Xác minh:} Reload trang /admin/users → không 404, hiển thị bình thường.
+
+\subsection{Vấn đề 2: Dữ liệu bị reset sau restart}
+
+\textbf{Nguyên nhân:} Dùng InMemory Database.
+
+\textbf{Giải pháp:} Chuyển sang Azure SQL + EF Core migrations.
+
+\textbf{Xác minh:} Restart app, dữ liệu vẫn có.
+
+\subsection{Vấn đề 3: Admin add-user không rõ lỗi}
+
+\textbf{Nguyên nhân:} Frontend không đọc backend error message.
+
+\textbf{Giải pháp:} Đổi service dùng shared API client, hiển thị \texttt{response.data.message}.
+
+\textbf{Xác minh:} Tạo user với email trùng → hiển thị "Email already exists".
+
+\subsection{Vấn đề 4: Quên mật khẩu không gửi Gmail}
+
+\textbf{Nguyên nhân:} SMTP chưa cấu hình.
+
+\textbf{Giải pháp:} Bổ sung admin reset password; SMTP là tuỳ chọn.
+
+\textbf{Xác minh:} Endpoint trả 200; nếu có SMTP sẽ gửi email.
+
+% =========================
+% CHƯƠNG 6: KẾT LUẬN
+% =========================
+
+\chapter{Kết luận}
+
+\section{Tóm tắt kết quả}
+
+Dự án \ProjectName{} đã hoàn thành thành công với các thành tựu chính:
+
+\begin{itemize}[itemsep=3pt]
+  \item \textbf{Hệ thống hoàn chỉnh:} Website public + admin portal với đầy đủ CRUD nội dung.
+  
+  \item \textbf{Bảo mật:} Xác thực JWT, phân quyền RBAC, CORS cấu hình chặt.
+  
+  \item \textbf{Tính bền vững:} Dữ liệu lưu Azure SQL, migrations tự động, không bị reset.
+  
+  \item \textbf{Triển khai thực tế:} Frontend trên SWA, backend trên App Service, CI/CD qua GitHub Actions.
+  
+  \item \textbf{Tính năng nâng cao:} Forgot/reset password, admin reset password, audit logging, settings management.
+  
+  \item \textbf{Quy trình phát triển:} Cấu trúc code rõ ràng, dễ bảo trì và mở rộng.
+\end{itemize}
+
+\section{Kỹ năng và công nghệ học được}
+
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{Frontend:} React, TypeScript, Vite, React Router, Axios interceptor.
+  \item \textbf{Backend:} ASP.NET Core, EF Core, ASP.NET Identity, JWT authentication.
+  \item \textbf{Cloud:} Azure Static Web Apps, Azure App Service, Azure SQL, deployment strategies.
+  \item \textbf{DevOps:} GitHub Actions CI/CD, zip deployment, environment configuration.
+\end{itemize}
+
+\section{Hạn chế}
+
+\begin{itemize}[itemsep=2pt]
+  \item SMTP email delivery chưa cấu hình (optional feature).
+  \item Unit tests/integration tests còn hạn chế (có thể bổ sung thêm).
+  \item Monitoring/logging advanced (Application Insights) chưa áp dụng.
+  \item Performance optimization (caching, CDN) là hướng phát triển tiếp theo.
+\end{itemize}
+
+\section{Hướng phát triển tương lai}
+
+\begin{enumerate}[itemsep=3pt]
+  \item \textbf{Hoàn thiện email:} Cấu hình SMTP + email templates chuyên nghiệp.
+  
+  \item \textbf{Monitoring:} Tích hợp Application Insights, alert khi error.
+  
+  \item \textbf{Caching:} Redis cache cho những query thường xuyên.
+  
+  \item \textbf{Performance:} CDN cho static assets, database indexing tuning.
+  
+  \item \textbf{Tính năng:} Two-factor authentication, OAuth social login.
+  
+  \item \textbf{Testing:} Unit tests, integration tests, E2E tests.
+  
+  \item \textbf{SEO:} Metadata, sitemap, structured data for content.
+\end{enumerate}
+
+\section{Lời kết}
+
+Đề tài này là một ứng dụng web thực tế, đã chuẩn bị theo quy trình DevOps chuyên nghiệp.
+Quá trình phát triển từ thiết kế, cài đặt, kiểm thử đến triển khai cloud đã minh chứng rõ
+ứng dụng của các kiến thức về web development, cloud computing, và software engineering.
+
+Hy vọng báo cáo này cung cấp nền tảng vững chắc cho các nhân viên, teacher và các bên liên quan
+để hiểu rõ kiến trúc, công nghệ, và quy trình phát triển của hệ thống.
+
+% =========================
+% Tài liệu tham khảo
+% =========================
+
+\begin{thebibliography}{9}
+
+\bibitem{aspnet}
+Microsoft, \textit{ASP.NET Core Documentation}. 
+\url{https://learn.microsoft.com/aspnet/core/}
+
+\bibitem{identity}
+Microsoft, \textit{ASP.NET Core Identity Documentation}. 
+\url{https://learn.microsoft.com/aspnet/core/security/authentication/identity}
+
+\bibitem{efcore}
+Microsoft, \textit{Entity Framework Core}. 
+\url{https://learn.microsoft.com/ef/core/}
+
+\bibitem{react}
+Facebook Developers, \textit{React Official Documentation}. 
+\url{https://react.dev/}
+
+\bibitem{swa}
+Microsoft, \textit{Azure Static Web Apps}. 
+\url{https://learn.microsoft.com/azure/static-web-apps/}
+
+\bibitem{appservice}
+Microsoft, \textit{Azure App Service Documentation}. 
+\url{https://learn.microsoft.com/azure/app-service/}
+
+\bibitem{azuresql}
+Microsoft, \textit{Azure SQL Database Documentation}. 
+\url{https://learn.microsoft.com/azure/azure-sql/}
+
+\bibitem{jwt}
+Auth0, \textit{JWT.io - Introduction to JSON Web Tokens}. 
+\url{https://jwt.io/introduction}
+
+\bibitem{rest}
+Roy Fielding, \textit{Representational State Transfer (REST)}. 
+\url{https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm}
+
+\end{thebibliography}
+
+% =========================
+% PHỤ LỤC
+% =========================
+
+\appendix
+
+\chapter{Phụ lục A: Danh sách ảnh cần chèn}
+
+\begin{longtable}{|p{0.30\textwidth}|p{0.65\textwidth}|}
+\toprule
+\textbf{Tên ảnh (figures/)} & \textbf{Nội dung gợi ý} \\
+\midrule
+ui_homepage.png & Trang chủ public: banner, tin nổi bật, bản đồ hành chính. \\
+\hline
+erd_diagram.png & Entity Relationship Diagram các bảng (SSMS hoặc draw.io). \\
+\hline
+usecase_diagram.png & Use-case diagram: Public actor, Editor, Admin. \\
+\hline
+architecture_3tier.png & Sơ đồ 3-tier: Frontend (SWA) -> API (App Service) -> DB. \\
+\hline
+swagger_ui.png & Swagger UI trên production: endpoint chính. \\
+\hline
+ui_admin_dashboard.png & Trang admin dashboard: menu, thống kê. \\
+\hline
+ui_admin_news.png & Bảng danh sách tin tức admin: header, data rows, action buttons. \\
+\hline
+ui_modal_news_edit.png & Modal tạo/sửa tin: form fields, buttons. \\
+\hline
+ui_form_add_user.png & Form thêm người dùng: email, password fields. \\
+\hline
+ui_modal_reset_password.png & Modal reset mật khẩu: user info, password fields, button. \\
+\hline
+test_swagger_login.png & Swagger: POST /api/auth/login + response. \\
+\hline
+test_swagger_admin_reset.png & Swagger: Endpoint reset password admin. \\
+\hline
+\end{longtable}
+
+\chapter{Phụ lục B: Code Snippets Chiều dài}
+
+\section{Frontend - API Client Setup}
+
+\begin{lstlisting}[language=js,caption={src/lib/api.ts - Axios Interceptor}]
+import axios, { AxiosInstance } from "axios";
+
+const API_BASE_URL = 
+  import.meta.env.VITE_API_URL || 
+  (window.location.hostname.includes('azurestaticapps.net') 
+    ? 'https://sadec-backend.azurewebsites.net/api' 
+    : 'http://localhost:5000/api');
+
+export const api = axios.create({
+  baseURL: API_BASE_URL,
+});
+
+// Request interceptor: attach token
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Response interceptor: refresh token on 401
+api.interceptors.response.use(
+  response => response,
+  async error => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (refreshToken) {
+        const resp = await axios.post(`${API_BASE_URL}/auth/refresh-token`, {
+          token: localStorage.getItem("token"),
+          refreshToken
+        });
+        localStorage.setItem("token", resp.data.token);
+        originalRequest.headers.Authorization = `Bearer ${resp.data.token}`;
+        return api(originalRequest);
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+\end{lstlisting}
+
+\section{Backend - Authentication Middleware}
+
+\begin{lstlisting}[language=java,caption={Program.cs - JWT Setup}]
+var builder = WebApplicationBuilder.CreateBuilder(args);
+
+// Add Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+.AddJwtBearer(opts => {
+  opts.TokenValidationParameters = new()
+  {
+    ValidateIssuer = false,
+    ValidateAudience = false,
+    ValidateLifetime = true,
+    ValidateIssuerSigningKey = true,
+    IssuerSigningKey = new SymmetricSecurityKey(
+      Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"] ?? ""))
+  };
+});
+
+// Add Authorization
+builder.Services.AddAuthorization();
+
+// Add DbContext
+builder.Services.AddDbContext<ApplicationDbContext>(opts =>
+  opts.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+var app = builder.Build();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+app.Run();
+\end{lstlisting}
+
+\chapter{Phụ lục C: Các lệnh thường dùng}
+
+\section{Frontend}
+
+\begin{lstlisting}[language=bash,caption={Lệnh frontend}]
+# Cài dependencies
+npm ci
+
+# Chạy dev server
+npm run dev
+
+# Build production
+npm run build
+
+# Preview build
+npm run preview
+
+# Lint (nếu có ESLint)
+npm run lint
+\end{lstlisting}
+
+\section{Backend}
+
+\begin{lstlisting}[language=bash,caption={Lệnh backend}]
+# Restore packages
+dotnet restore
+
+# Build
+dotnet build
+
+# Chạy dev
+dotnet run
+
+# Publish Release
+dotnet publish -c Release -o ./publish_backend
+
+# EF Core migrations
+dotnet ef migrations add <MigrationName>
+
+# Apply migrations
+dotnet ef database update
+
+# View schema
+dotnet ef dbcontext scaffold ...
+\end{lstlisting}
+
+\chapter{Phụ lục D: Troubleshooting}
+
+\section{Frontend}
+
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{CORS error:} Backend cần cấu hình CORS cho origin của frontend.
+  \item \textbf{Token không gửi:} Kiểm tra localStorage có token, axios interceptor chạy đúng.
+  \item \textbf{404 khi reload route:} Kiểm tra staticwebapp.config.json có navigationFallback.
+\end{itemize}
+
+\section{Backend}
+
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{Connection string error:} Kiểm tra App Service configuration có DB connection string.
+  \item \textbf{Migration fails:} Chắc chắn database đã tạo, firewall rule cho App Service.
+  \item \textbf{401 Unauthorized:} Token hết hạn hoặc sai secret key.
+\end{itemize}
+
+\end{document}

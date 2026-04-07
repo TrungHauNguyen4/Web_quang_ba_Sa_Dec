@@ -1,0 +1,86 @@
+\xpg@aux {}{vietnamese}
+\contentsline {chapter}{\numberline {1}Giới thiệu}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Bối cảnh và lý do chọn đề tài}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Mục tiêu đề tài}{1}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Phạm vi thực hiện}{2}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Frontend}{2}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}Backend}{3}{subsection.1.3.2}%
+\contentsline {subsection}{\numberline {1.3.3}Cơ sở dữ liệu}{3}{subsection.1.3.3}%
+\contentsline {section}{\numberline {1.4}Đối tượng sử dụng}{3}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Môi trường triển khai}{3}{section.1.5}%
+\contentsline {chapter}{\numberline {2}Cơ sở lý thuyết}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Kiến trúc ứng dụng web hiện đại}{5}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Mô hình Single Page Application (SPA)}{5}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}API RESTful}{5}{subsection.2.1.2}%
+\contentsline {section}{\numberline {2.2}Xác thực và phân quyền (Authentication \& Authorization)}{6}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}JWT (JSON Web Token)}{6}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Role-Based Access Control (RBAC)}{6}{subsection.2.2.2}%
+\contentsline {section}{\numberline {2.3}Công nghệ Stack}{6}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Frontend Stack}{6}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Backend Stack}{7}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}DevOps \& Cloud}{7}{subsection.2.3.3}%
+\contentsline {section}{\numberline {2.4}Entity-Relationship Model (ERD)}{7}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Các bảng chính}{7}{subsection.2.4.1}%
+\contentsline {chapter}{\numberline {3}Phân tích và thiết kế}{9}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Khảo sát yêu cầu chi tiết}{9}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Yêu cầu chức năng (Functional Requirements)}{9}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Yêu cầu phi chức năng (Non-Functional Requirements)}{10}{subsection.3.1.2}%
+\contentsline {section}{\numberline {3.2}Use-Case Diagram}{10}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Thiết kế kiến trúc hệ thống}{11}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Sơ đồ kiến trúc 3-tier}{11}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Cấu hình Static Web Apps cho SPA}{11}{subsection.3.3.2}%
+\contentsline {section}{\numberline {3.4}Thiết kế API}{12}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Base URL và cấu trúc endpoint}{12}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Endpoint công khai (Public API)}{12}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Endpoint admin (yêu cầu Bearer token + role Admin/Editor)}{13}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.4}Endpoint xác thực (Auth API)}{14}{subsection.3.4.4}%
+\contentsline {subsection}{\numberline {3.4.5}Response Format}{14}{subsection.3.4.5}%
+\contentsline {section}{\numberline {3.5}Thiết kế giao diện (UI/UX)}{15}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Public Website}{15}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Admin Portal}{15}{subsection.3.5.2}%
+\contentsline {chapter}{\numberline {4}Cài đặt và triển khai}{17}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Cấu trúc mã nguồn}{17}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Frontend folder structure}{17}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Backend folder structure}{17}{subsection.4.1.2}%
+\contentsline {section}{\numberline {4.2}Setup môi trường local}{18}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Backend setup}{18}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Frontend setup}{19}{subsection.4.2.2}%
+\contentsline {section}{\numberline {4.3}Cài đặt reset mật khẩu}{19}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Luồng 1: Người dùng tự đặt lại (Forgot/Reset Password)}{19}{subsection.4.3.1}%
+\contentsline {subsubsection}{Backend implementation}{19}{section*.12}%
+\contentsline {subsubsection}{Frontend implementation}{21}{section*.13}%
+\contentsline {subsection}{\numberline {4.3.2}Luồng 2: Admin reset mật khẩu trực tiếp}{21}{subsection.4.3.2}%
+\contentsline {section}{\numberline {4.4}Triển khai trên Azure}{23}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Deploy Frontend}{23}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Deploy Backend}{23}{subsection.4.4.2}%
+\contentsline {subsection}{\numberline {4.4.3}Cấu hình App Service}{23}{subsection.4.4.3}%
+\contentsline {chapter}{\numberline {5}Kiểm thử}{24}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Mục tiêu kiểm thử}{24}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Kiểm thử thủ công}{24}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Test Cases}{24}{subsection.5.2.1}%
+\contentsline {section}{\numberline {5.3}Kiểm thử API bằng Swagger/Postman}{25}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Kiểm thử Giao diện}{26}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Kiểm thử Login}{26}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Kiểm thử Reset Password}{26}{subsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.4.3}Kiểm thử Admin Users}{26}{subsection.5.4.3}%
+\contentsline {section}{\numberline {5.5}Vấn đề phát hiện và xử lý}{27}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}Vấn đề 1: SPA reload trang con bị 404}{27}{subsection.5.5.1}%
+\contentsline {subsection}{\numberline {5.5.2}Vấn đề 2: Dữ liệu bị reset sau restart}{27}{subsection.5.5.2}%
+\contentsline {subsection}{\numberline {5.5.3}Vấn đề 3: Admin add-user không rõ lỗi}{28}{subsection.5.5.3}%
+\contentsline {subsection}{\numberline {5.5.4}Vấn đề 4: Quên mật khẩu không gửi Gmail}{28}{subsection.5.5.4}%
+\contentsline {chapter}{\numberline {6}Kết luận}{29}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Tóm tắt kết quả}{29}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Kỹ năng và công nghệ học được}{29}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Hạn chế}{30}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Hướng phát triển tương lai}{30}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Lời kết}{30}{section.6.5}%
+\contentsline {chapter}{\numberline {A}Phụ lục A: Danh sách ảnh cần chèn}{32}{appendix.A}%
+\contentsline {chapter}{\numberline {B}Phụ lục B: Code Snippets Chiều dài}{33}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Frontend - API Client Setup}{33}{section.B.1}%
+\contentsline {section}{\numberline {B.2}Backend - Authentication Middleware}{34}{section.B.2}%
+\contentsline {chapter}{\numberline {C}Phụ lục C: Các lệnh thường dùng}{36}{appendix.C}%
+\contentsline {section}{\numberline {C.1}Frontend}{36}{section.C.1}%
+\contentsline {section}{\numberline {C.2}Backend}{36}{section.C.2}%
+\contentsline {chapter}{\numberline {D}Phụ lục D: Troubleshooting}{38}{appendix.D}%
+\contentsline {section}{\numberline {D.1}Frontend}{38}{section.D.1}%
+\contentsline {section}{\numberline {D.2}Backend}{38}{section.D.2}%
